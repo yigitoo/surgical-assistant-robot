@@ -11,7 +11,7 @@ class CmdSender():
 
     def send_cmd(self, cmd):
         rospy.loginfo("Sending command: %s" % cmd)
-        self.pub.publish(self.msg_type(cmd))
+        self.pub.publish(msg.String(cmd))
         rospy.loginfo("Request sended!")
 
     def sleep(self):
