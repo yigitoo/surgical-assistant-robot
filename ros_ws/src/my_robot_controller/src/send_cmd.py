@@ -1,17 +1,18 @@
 from logger import LogLevel, LogLevelHandlerError
-from std_msgs import msg
+
+import std_msgs.msg
 import rospy
 
 class CmdSender():
-    def __init__(self, node_name = "send_cmd", msg_type = msg.String):
+    def __init__(self, node_name = "send_cmd", msg_type = std_msgs.msg.String):
         self.node_name = node_name
         self.msg_type = msg_type
         rospy.init_node(self.node_name, anonymous=True)
-        self.pub = rospy.Publisher("/cmd_publisher", self.msg_type, queue_size=10)
+        self.pub = rospy.Publisher("command", std_msgs.msg.String, queue_size=10)
 
     def send_cmd(self, cmd):
         rospy.loginfo("Sending command: %s" % cmd)
-        self.pub.publish(msg.String(cmd))
+        self.pub.publish(std_msgs.msg.String(cmd))
         rospy.loginfo("Request sended!")
 
     def sleep(self):

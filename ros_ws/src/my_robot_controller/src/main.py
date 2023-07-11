@@ -10,5 +10,5 @@ if __name__ == '__main__':
     cmd_sender.log_msg(LogLevel.INFO ,"\"Hello world\" msg sended to rosmaster!")
     cmd_sender.log_warn("I use that for debugging my logger.")
     while not cmd_sender.is_shutdown():
-        cmd_sender.send_cmd("ADIOS!")
+        cmd_sender.send_cmd("168")
         cmd_sender.sleep()
