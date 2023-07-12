@@ -18,8 +18,8 @@ class CmdListener():
     def callback(self, data):
         rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
         self.current_value = data.data
-    def listener(self):
 
+    def listener(self):
         rospy.Subscriber('command', std_msgs.msg.String, self.callback)
         if type(std_msgs.msg.UInt16(self.current_value)) == std_msgs.msg.UInt16:
             self.log_info("true")

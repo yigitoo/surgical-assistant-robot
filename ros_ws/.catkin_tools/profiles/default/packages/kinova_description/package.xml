@@ -7,7 +7,7 @@
       Includes the model and URDF files for working with an arm in RViz or Gazebo.
   </description>
   <maintainer email="support@kinova.ca">Kinova Support</maintainer>
-  <author>Kinova Support</author>
+  <author>Kinova ROS Support</author>
   <license>BSD</license>
   <url>http://ros.org/wiki/kinova_description</url>
 
