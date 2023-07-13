@@ -38,7 +38,10 @@ int main(int argc, char* argv[])
 
 #ifdef __linux__ 
 	//We load the API
-	commandLayer_handle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
+	commandLayer_handle = dlopen(
+		"Kinova.API.USBCommandLayerUbuntu.so",
+		RTLD_NOW|RTLD_GLOBAL
+	);
 
 	//We load the functions from the library
 	MyInitAPI = (int (*)()) dlsym(commandLayer_handle,"InitAPI");
