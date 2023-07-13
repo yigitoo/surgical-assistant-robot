@@ -15,9 +15,6 @@
 #include <iostream>
 #endif
 
-
-using namespace std;
-
 //A handle to the API.
 #ifdef __linux__ 
 void * commandLayer_handle;
@@ -73,18 +70,18 @@ int main(int argc, char* argv[])
 		(MyMoveHome == NULL) || (MyInitFingers == NULL))
 
 	{
-		cout << "* * *  E R R O R   D U R I N G   I N I T I A L I Z A T I O N  * * *" << endl;
+		std::cout << "* * *  E R R O R   D U R I N G   I N I T I A L I Z A T I O N  * * *" << std::endl;
 		programResult = 0;
 	}
 	else
 	{
-		cout << "I N I T I A L I Z A T I O N   C O M P L E T E D" << endl << endl;
+		std::cout << "I N I T I A L I Z A T I O N   C O M P L E T E D" << std::endl << std::endl;
 
 		int result = (*MyInitAPI)();
 
 		AngularPosition currentCommand;
 
-		cout << "Initialization's result :" << result << endl;
+		std::cout << "Initialization's result :" << result << std::endl;
 
 		KinovaDevice list[MAX_KINOVA_DEVICE];
 
@@ -92,15 +89,15 @@ int main(int argc, char* argv[])
 
 		for (int i = 0; i < devicesCount; i++)
 		{
-			cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+			std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
 
 			//Setting the current device as the active device.
 			MySetActiveDevice(list[i]);
 
-			cout << "Send the robot to HOME position" << endl;
+			std::cout << "Send the robot to HOME position" << std::endl;
 			MyMoveHome();
 
-			cout << "Initializing the motors." << endl;
+			std::cout << "Initializing the motors." << std::endl;
 			MyInitFingers();
 
 			TrajectoryPoint pointToSend;
@@ -144,7 +141,7 @@ int main(int argc, char* argv[])
 #endif
 			}
 
-			cout << "Send the robot to HOME position" << endl;
+			std::cout << "Send the robot to HOME position" << std::endl;
 			MyMoveHome();
 
 			//We specify that this point will be an angular(joint by joint) position.
@@ -160,23 +157,23 @@ int main(int argc, char* argv[])
 			pointToSend.Position.Actuators.Actuator5 = currentCommand.Actuators.Actuator5;
 			pointToSend.Position.Actuators.Actuator6 = currentCommand.Actuators.Actuator6;
 
-			cout << "*********************************" << endl;
-			cout << "Sending the first point to the robot." << endl;
+			std::cout << "*********************************" << std::endl;
+			std::cout << "Sending the first point to the robot." << std::endl;
 			MySendBasicTrajectory(pointToSend);
 
 			pointToSend.Position.Actuators.Actuator1 = currentCommand.Actuators.Actuator1 - 60;
-			cout << "Sending the second point to the robot." << endl;
+			std::cout << "Sending the second point to the robot." << std::endl;
 			MySendBasicTrajectory(pointToSend);
 
 			pointToSend.Position.Actuators.Actuator1 = currentCommand.Actuators.Actuator1;
-			cout << "Sending the third point to the robot." << endl;
+			std::cout << "Sending the third point to the robot." << std::endl;
 			MySendBasicTrajectory(pointToSend);
 
-			cout << "*********************************" << endl << endl << endl;
+			std::cout << "*********************************" << std::endl << std::endl << std::endl;
 		}
 
-		cout << endl << "WARNING: Your robot is now set to angular control. If you use the joystick, it will be a joint by joint movement." << endl;
-		cout << endl << "C L O S I N G   A P I" << endl;
+		std::cout << std::endl << "WARNING: Your robot is now set to angular control. If you use the joystick, it will be a joint by joint movement." << std::endl;
+		std::cout << std::endl << "C L O S I N G   A P I" << std::endl;
 		result = (*MyCloseAPI)();
 		programResult = 1;
 	}
