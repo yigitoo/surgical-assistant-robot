@@ -1,0 +1,3 @@
+[submodule "fingervision"]
+	path = fingervision
+	url = https://github.com/akihikoy/fingervision
