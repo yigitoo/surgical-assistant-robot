@@ -1,29 +1,37 @@
-from .logger import LogLevel, LogLevelHandlerError
+from ..logger import LogLevel, LogLevelHandlerError
+from geometry_msgs.msg import (
+    Pose,
+    Pose2D,
+    PoseArray,
+    Vector3,
+    Twist
+)
 
-import std_msgs.msg
 import rospy
+import std_msgs.msg
 
-class CmdSender():
-    def __init__(self, node_name = "send_cmd", msg_type = std_msgs.msg.String):
+class CmdListener():
+    def __init__(self, node_name = "event_listener", msg_type = std_msgs.msg.String):
         self.node_name = node_name
         self.msg_type = msg_type
-        rospy.init_node(self.node_name, anonymous=True)
-        self.pub = rospy.Publisher("command", std_msgs.msg.String, queue_size=10)
+        rospy.init_node(self.node_name, anonymous=False)
+        self.current_value = None
 
     def send_cmd(self, cmd):
         rospy.loginfo("Sending command: %s" % cmd)
         self.pub.publish(std_msgs.msg.String(cmd))
         rospy.loginfo("Request sended!")
 
-    def sleep(self):
-        self.rate.sleep()
+    def listener_callback(self, data):
+        rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
+        self.current_value = data.data
 
-    def set_rate(self, rate: float):
-        self.rate_val = rate
-        self.rate = rospy.Rate(self.rate_val)
-
-    def get_rate(self):
-        return self.rate_val
+    def listener(self):
+        rospy.Subscriber('command', std_msgs.msg.String, self.listener_callback)
+        if type(std_msgs.msg.UInt16(self.current_value)) == std_msgs.msg.UInt16:
+            self.log_info("true")
+        # spin() simply keeps python from exiting until this node is stopped
+        rospy.spin()
 
     def log_msg(self, level: LogLevel, msg: str):
         if level == LogLevel.INFO:
@@ -49,3 +57,4 @@ class CmdSender():
 
     def is_shutdown(self):
         return rospy.is_shutdown()
+

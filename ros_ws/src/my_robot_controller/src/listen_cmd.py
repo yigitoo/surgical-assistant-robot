@@ -1,4 +1,4 @@
-from .logger import LogLevel, LogLevelHandlerError
+from logger import LogLevel, LogLevelHandlerError
 
 import rospy
 import std_msgs.msg

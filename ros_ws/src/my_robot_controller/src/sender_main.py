@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from lib.send_cmd import CmdSender
-from lib.logger import LogLevel
+from send_cmd import CmdSender
+from logger import LogLevel
 
 if __name__ == '__main__':
     cmd_sender = CmdSender("cmd_sender")
