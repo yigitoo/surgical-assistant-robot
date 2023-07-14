@@ -67,7 +67,7 @@ int main(void);
 
 int main()
 {
-	int option = 1, actuator_id = 1;
+	int option = 1, actuator_id = 2;
 	int result, programResult;
     int is_initialized = InitializeAPIFunctions();
     if(!is_initialized) return 1;
