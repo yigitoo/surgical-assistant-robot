@@ -15,6 +15,8 @@
 #include <conio.h>
 #endif
 
+#include "api.hpp"
+
 using namespace std;
 
 //A handle to the API.
