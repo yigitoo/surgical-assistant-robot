@@ -139,7 +139,7 @@ int admittance(int actuator_id, int result)
 	MyStartForceControl();
 
 	cout << endl << "The robot's admittance control is now active, you can move it freely with your hand." <<
-	" To deactivate it call the function StopForceControl()." << endl;
+	" To deactivate it call the function StopForceControl()." << devicesCount << endl;
 	}
 	
 	return 1;
@@ -172,12 +172,12 @@ int angular_control(int actuator_id, int result)
 		//We specify that this point will be used an angular(joint by joint) velocity vector.
 		pointToSend.Position.Type = ANGULAR_VELOCITY;
 
-		pointToSend.Position.Actuators.Actuator1 = 48;
-		pointToSend.Position.Actuators.Actuator2 = 48;
-		pointToSend.Position.Actuators.Actuator3 = 48;
-		pointToSend.Position.Actuators.Actuator4 = 48;
-		pointToSend.Position.Actuators.Actuator5 = 48;
-		pointToSend.Position.Actuators.Actuator6 = 48; //joint 6 at 48 degrees per second.
+		pointToSend.Position.Actuators.Actuator1 = 0;
+		pointToSend.Position.Actuators.Actuator2 = 0;
+		pointToSend.Position.Actuators.Actuator3 = 0;
+		pointToSend.Position.Actuators.Actuator4 = 0;
+		pointToSend.Position.Actuators.Actuator5 = 0;
+		pointToSend.Position.Actuators.Actuator6 = 0; //joint 6 at 48 degrees per second.
 
 		pointToSend.Position.Fingers.Finger1 = 0;
 		pointToSend.Position.Fingers.Finger2 = 0;
@@ -190,7 +190,6 @@ int angular_control(int actuator_id, int result)
 			sleep(5);
 		}
 
-		pointToSend.Position.Actuators.Actuator6 = -20; //joint 6 at -20 degrees per second.
 
 		for (int i = 0; i < 300; i++)
 		{
@@ -208,12 +207,12 @@ int angular_control(int actuator_id, int result)
 		//We get the actual angular command of the robot.
 		MyGetAngularCommand(currentCommand);
 
-		pointToSend.Position.Actuators.Actuator1 = currentCommand.Actuators.Actuator1 + 30;
-		pointToSend.Position.Actuators.Actuator2 = currentCommand.Actuators.Actuator2;
-		pointToSend.Position.Actuators.Actuator3 = currentCommand.Actuators.Actuator3;
-		pointToSend.Position.Actuators.Actuator4 = currentCommand.Actuators.Actuator4;
-		pointToSend.Position.Actuators.Actuator5 = currentCommand.Actuators.Actuator5;
-		pointToSend.Position.Actuators.Actuator6 = currentCommand.Actuators.Actuator6;
+		pointToSend.Position.Actuators.Actuator1 = currentCommand.Actuators.Actuator1 + 3;
+		pointToSend.Position.Actuators.Actuator2 = currentCommand.Actuators.Actuator2 + 3;
+		pointToSend.Position.Actuators.Actuator3 = currentCommand.Actuators.Actuator3 + 3;
+		pointToSend.Position.Actuators.Actuator4 = currentCommand.Actuators.Actuator4 + 3;
+		pointToSend.Position.Actuators.Actuator5 = currentCommand.Actuators.Actuator5 + 3;
+		pointToSend.Position.Actuators.Actuator6 = currentCommand.Actuators.Actuator6 + 3;
 
 		std::cout << "*********************************" << std::endl;
 		std::cout << "Sending the first point to the robot." << std::endl;
@@ -394,6 +393,7 @@ int get_cartesian_info(int actuator_id, int result)
 	KinovaDevice list[MAX_KINOVA_DEVICE];
 
 	
+
 	int devicesCount = MyGetDevices(list, result);
 
 	for (int i = 0; i < devicesCount; i++)
@@ -467,20 +467,39 @@ int get_torque_value(int actuator_id, int result)
 	{
 		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
 
+		float acts[7];
+		float gfacts[7];
+		acts[0] = torque.Actuators.Actuator1;
+		acts[1] = torque.Actuators.Actuator2;
+		acts[2] = torque.Actuators.Actuator3;
+		acts[3] = torque.Actuators.Actuator4;
+		acts[4] = torque.Actuators.Actuator5;
+		acts[5] = torque.Actuators.Actuator6;
+		acts[6] = torque.Actuators.Actuator7;
+		
+		
+		gfacts[0] = torqueGravityFree.Actuators.Actuator1;
+		gfacts[1] = torqueGravityFree.Actuators.Actuator2;
+		gfacts[2] = torqueGravityFree.Actuators.Actuator3;
+		gfacts[3] = torqueGravityFree.Actuators.Actuator4;
+		gfacts[4] = torqueGravityFree.Actuators.Actuator5;
+		gfacts[5] = torqueGravityFree.Actuators.Actuator6;
+		gfacts[6] = torqueGravityFree.Actuators.Actuator7;
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
 
 		MyGetAngularForce(torque);
 		MyGetAngularForceGravityFree(torqueGravityFree);
 		cout << "*********************************" << endl;
-		cout << "Actuator 1   torque : " << torque.Actuators.Actuator1 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator1 << " N*m" << endl;
-		cout << "Actuator 2   torque : " << torque.Actuators.Actuator2 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator2 << " N*m" << endl;
-		cout << "Actuator 3   torque : " << torque.Actuators.Actuator3 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator3 << " N*m" << endl;
-		cout << "Actuator 4   torque : " << torque.Actuators.Actuator4 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator4 << " N*m" << endl;
-		cout << "Actuator 5   torque : " << torque.Actuators.Actuator5 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator5 << " N*m" << endl;
-		cout << "Actuator 6   torque : " << torque.Actuators.Actuator6 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator6 << " N*m" << endl;
-		cout << "Actuator 7   torque : " << torque.Actuators.Actuator7 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator7 << " N*m" << endl;
+		cout << "Actuator 1   torque : " << acts[0] << " N*m" << "     without gravity : " << gfacts[0] << " N*m" << endl;
+		cout << "Actuator 2   torque : " << acts[1] << " N*m" << "     without gravity : " << gfacts[1] << " N*m" << endl;
+		cout << "Actuator 3   torque : " << acts[2] << " N*m" << "     without gravity : " << gfacts[2] << " N*m" << endl;
+		cout << "Actuator 4   torque : " << acts[3] << " N*m" << "     without gravity : " << gfacts[3] << " N*m" << endl;
+		cout << "Actuator 5   torque : " << acts[4] << " N*m" << "     without gravity : " << gfacts[4] << " N*m" << endl;
+		cout << "Actuator 6   torque : " << acts[5] << " N*m" << "     without gravity : " << gfacts[5] << " N*m" << endl;
+		cout << "Actuator 7   torque : " << acts[6] << " N*m" << "     without gravity : " << gfacts[6] << " N*m" << endl;
 		cout << "*********************************" << endl << endl << endl;
+		cout << torque.Actuators.Actuator1 << endl << endl << endl;
 	}
 
 	return 1;
