@@ -67,8 +67,9 @@ int get_actuator_current(int actuator_id, int result);
 int get_angular_info(int actuator_id, int result);
 int get_cartesian_info(int actuator_id, int result);
 int get_temperature(int actuator_id, int result);
+int get_torque_value(int actuator_id, int result);
 int InitializeAPIFunctions();
-int main(void);
+int main(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
 {
@@ -105,6 +106,9 @@ int main(int argc, char *argv[])
 	} else if (option == 7) 
 	{
 		programResult = get_temperature(actuator_id, result);
+	} else if (option == 8)
+	{
+		programResult = get_torque_value(actuator_id, result);
 	} else {
 		cout << "Error: Unknown option" << endl;
 		return 1;
@@ -168,11 +172,11 @@ int angular_control(int actuator_id, int result)
 		//We specify that this point will be used an angular(joint by joint) velocity vector.
 		pointToSend.Position.Type = ANGULAR_VELOCITY;
 
-		pointToSend.Position.Actuators.Actuator1 = 0;
-		pointToSend.Position.Actuators.Actuator2 = 0;
-		pointToSend.Position.Actuators.Actuator3 = 0;
-		pointToSend.Position.Actuators.Actuator4 = 0;
-		pointToSend.Position.Actuators.Actuator5 = 0;
+		pointToSend.Position.Actuators.Actuator1 = 48;
+		pointToSend.Position.Actuators.Actuator2 = 48;
+		pointToSend.Position.Actuators.Actuator3 = 48;
+		pointToSend.Position.Actuators.Actuator4 = 48;
+		pointToSend.Position.Actuators.Actuator5 = 48;
 		pointToSend.Position.Actuators.Actuator6 = 48; //joint 6 at 48 degrees per second.
 
 		pointToSend.Position.Fingers.Finger1 = 0;
@@ -446,9 +450,11 @@ int get_temperature(int actuator_id, int result)
 		cout << "Actuator 7 temperature : " << data.ActuatorsTemperatures[6] << " °C" << endl;
 		cout << "*********************************" << endl << endl << endl;
 	}
+
+	return 1;
 }
 
-int get_torque_value(int result)
+int get_torque_value(int actuator_id, int result)
 {
 	AngularPosition torque;
 	AngularPosition torqueGravityFree;
@@ -477,6 +483,7 @@ int get_torque_value(int result)
 		cout << "*********************************" << endl << endl << endl;
 	}
 
+	return 1;
 }
 
 void sleep(int duration) {
