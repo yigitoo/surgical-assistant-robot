@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<robot name="misa" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="pi" value="3.1415926535897931"/>
+  <xacro:property name="Le" value="0.156051"/>
+  <xacro:property name="Ld" value="0.042" /> <!-- arbitrary value for mass -->
+  <xacro:property name="common_link_mass" value="0.73"/>
+  <xacro:property name="end_link_mass" value="0.235"/>
+  <xacro:property name="width" value="0.1" /> <!-- Square dimensions (widthxwidth) of beams -->
+  <xacro:property name="height1" value="2" /> <!-- Link 1 -->
+  <xacro:property name="mass" value="1" /> <!-- arbitrary value for mass -->
+  <xacro:property name="common_friction" value="0.1" /> <!-- arbitrary value for mass -->
+  <xacro:property name="damping" value="0.5" /> <!-- arbitrary value for mass -->
+  <xacro:property name="mass_center_f" value="0.078" /> <!-- arbitrary value for mass -->
+  <xacro:property name="mass_center_s" value="0.078" /> <!-- arbitrary value for mass -->
+  <xacro:include filename="$(find misa_description)/urdf/misa.gazebo" />
+
+  <selfCollide>True</selfCollide>
+  <static>true</static>
+
+  <link name="world"/>
+
+  <joint name="fixed" type="fixed">
+    <parent link="world"/>
+    <child link="link0"/>
+  </joint>
+
+  <link name="link0">
+    <visual>
+      <origin xyz="0 0 ${height1/2}" rpy="0 0 0"/>
+      <geometry>
+	       <box size="${width} ${width} ${height1}"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 ${height1/2}" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia
+	        ixx="${mass / 12.0 * (width*width + height1*height1)}" ixy="0.0" ixz="0.0"
+	        iyy="${mass / 12.0 * (height1*height1 + width*width)}" iyz="0.0"
+	        izz="${mass / 12.0 * (width*width + width*width)}"/>
+    </inertial>
+  </link>
+
+  <joint name="prismatic_joint" type="fixed">
+    <parent link="link0"/>
+    <axis xyz = "0 0 1" />
+    <child link="link1"/>
+    <origin rpy="0 0 0" xyz="0.0 0 ${height1}"/>
+  </joint>
+
+  <link name="link1">
+    <visual>
+      <origin rpy="0 0 ${-pi/2}" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://misa_description/meshes/base.dae" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value = "0.125" />
+      <inertia ixx = "0.001" iyy = "0.001" izz = "0.001" ixy = "0.00" ixz = "0.00" iyz = "0.001"/>
+    </inertial>
+  </link>
+
+  <joint name="joint1" type="continuous">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0.0545 0 0"/>
+    <!--limit effort = "300" lower = "${-pi}" upper = "${pi}" velocity = "50.0"/-->
+    <dynamics damping="${damping}" friction="${common_friction}"/>
+    <sensor name="joint1_torque" type="force_torque">
+              <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <link name="link2">
+    <visual>
+      <origin rpy="0.0 ${pi/2} 0" xyz="0.001 0 0"/>
+      <geometry>
+        <mesh filename="package://misa_description/meshes/common_link.dae" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value = "${common_link_mass}"/>
+      <origin rpy = "0.0 0 0" xyz = "${mass_center_f} 0 ${mass_center_s}"/>
+      <inertia ixx = "0.006" iyy = "0.011" izz = "0.006" ixy = "-0.000002" ixz = "-0.005" iyz = "-0.00000192"/>
+    </inertial>
+  </link>
+
+    <joint name = "joint2" type = "continuous">
+      <parent link = "link2"/>
+      <child link = "link3"/>
+      <origin xyz = "${Le} 0 ${Le}"/>
+      <axis xyz = "0 0 1" />
+      <dynamics damping="${damping}" friction="${common_friction}"/>
+      <!--limit effort = "300" lower = "${-pi}" upper = "${pi}" velocity = "50.0"/-->
+      <sensor name="joint2_torque" type="force_torque">
+                <update_rate>30</update_rate>
+      </sensor>
+    </joint>
+
+    <link name = "link3">
+      <visual>
+        <origin rpy = "0.0 0 ${pi/2}" xyz = "0 0 0.001"/>
+        <geometry>
+          <mesh filename = "package://misa_description/meshes/common_link.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </visual>
+      <inertial>
+        <mass value = "${common_link_mass}"/>
+        <origin rpy = "0.0 0 0" xyz = "0 -${mass_center_s} ${mass_center_f}"/>
+        <inertia ixx = "0.006" iyy = "0.011" izz = "0.006" ixy = "-0.000002" ixz = "-0.005" iyz = "-0.00000192"/>
+      </inertial>
+    </link>
+
+    <joint name = "joint3" type = "continuous">
+      <parent link = "link3"/>
+      <child link = "link4"/>
+      <origin xyz = "0 ${-Le} ${Le}"/>
+      <axis xyz = "0 -1 0" />
+      <dynamics damping="${damping}" friction="${common_friction}"/>
+      <!--limit effort = "300" lower = "${-pi}" upper = "${pi}" velocity = "50.0"/-->
+      <sensor name="joint3_torque" type="force_torque">
+                <update_rate>30</update_rate>
+      </sensor>
+    </joint>
+
+    <link name = "link4">
+      <visual>
+        <origin rpy = "${pi/2} ${pi} 0" xyz = "0 -0.001 0"/>
+        <geometry>
+          <mesh filename = "package://misa_description/meshes/common_link.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </visual>
+      <inertial>
+        <mass value = "${common_link_mass}"/>
+        <origin rpy = "0 0 0" xyz = "${mass_center_s} -${mass_center_f} 0"/>
+        <inertia ixx = "0.006" iyy = "0.011" izz = "0.006" ixy = "-0.000002" ixz = "-0.005" iyz = "-0.00000192"/>
+      </inertial>
+  </link>
+
+  <joint name = "joint4" type = "continuous">
+    <parent link = "link4"/>
+    <child link = "link_5"/>
+    <origin xyz = "${Le} ${-Le} 0"/>
+    <axis xyz = "1 0 0" />
+    <dynamics damping="${damping}" friction="${common_friction}"/>
+    <!--limit effort = "300" lower = "${-pi}" upper = "${pi}" velocity = "50.0"/-->
+    <sensor name="joint4_torque" type="force_torque">
+              <update_rate>30</update_rate>
+    </sensor>
+  </joint>
+
+  <link name = "link_5">
+    <visual>
+      <origin rpy = "0 ${pi/2} 0" xyz = "0.001 0 0"/>
+      <geometry>
+        <mesh filename = "package://misa_description/meshes/end_link.dae" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value = "${end_link_mass}"/>
+      <origin rpy = "0 0 0" xyz = "${Ld/2} 0 0" />
+      <inertia ixx = "0.0001957" iyy = "0.000198" izz = "0.0001852" ixy = "0.000007265" ixz = "0.00001318" iyz = "-0.00001095"/>
+    </inertial>
+  </link>
+
+  <transmission name="tran1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran4">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint4">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor4">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+</robot>
