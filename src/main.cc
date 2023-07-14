@@ -62,10 +62,15 @@ int(*MyGetAngularForceGravityFree)(AngularPosition &Response);
 void sleep(int duration);
 int admittance(int actuator_id, int result);
 int angular_control(int actuator_id, int result);
+int cartesian_control(int actuator_id, int result);
+int get_actuator_current(int actuator_id, int result);
+int get_angular_info(int actuator_id, int result);
+int get_cartesian_info(int actuator_id, int result);
+int get_temperature(int actuator_id, int result);
 int InitializeAPIFunctions();
 int main(void);
 
-int main()
+int main(int argc, char *argv[])
 {
 	int option = 2, actuator_id = 1;
 	int result, programResult;
@@ -87,10 +92,19 @@ int main()
 		programResult = angular_control(actuator_id, result);
 	} else if (option == 3)
 	{
-
+		programResult = cartesian_control(actuator_id, result);
 	} else if (option == 4)
 	{
-
+		programResult = get_actuator_current(actuator_id, result);
+	} else if (option == 5)
+	{
+		programResult = get_angular_info(actuator_id, result);
+	} else if (option == 6)
+	{
+		programResult = get_cartesian_info(actuator_id, result);
+	} else if (option == 7) 
+	{
+		programResult = get_temperature(actuator_id, result);
 	} else {
 		cout << "Error: Unknown option" << endl;
 		return 1;
@@ -105,7 +119,8 @@ int main()
     return !programResult;
 }
 
-int admittance(int actuator_id, int result) {
+int admittance(int actuator_id, int result)
+{
 	KinovaDevice list[MAX_KINOVA_DEVICE];
 
 	int devicesCount = MyGetDevices(list, result);
@@ -128,8 +143,9 @@ int admittance(int actuator_id, int result) {
 
 int angular_control(int actuator_id, int result)
 {
-	KinovaDevice list[MAX_KINOVA_DEVICE];
 	AngularPosition currentCommand;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
 
 	int devicesCount = MyGetDevices(list, result);
 
@@ -215,6 +231,254 @@ int angular_control(int actuator_id, int result)
 	return 1;
 }
 
+int cartesian_control(int actuator_id, int result)
+{
+    CartesianPosition currentCommand;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+
+		cout << "Send the robot to HOME position" << endl;
+		MyMoveHome();
+
+		cout << "Initializing the fingers" << endl;
+		MyInitFingers();
+
+		TrajectoryPoint pointToSend;
+		pointToSend.InitStruct();
+
+		//We specify that this point will be used an angular(joint by joint) velocity vector.
+		pointToSend.Position.Type = CARTESIAN_VELOCITY;
+
+		pointToSend.Position.CartesianPosition.X = 0;
+		pointToSend.Position.CartesianPosition.Y = -0.15; //Move along Y axis at 20 cm per second
+		pointToSend.Position.CartesianPosition.Z = 0;
+		pointToSend.Position.CartesianPosition.ThetaX = 0;
+		pointToSend.Position.CartesianPosition.ThetaY = 0;
+		pointToSend.Position.CartesianPosition.ThetaZ = 0;
+
+		pointToSend.Position.Fingers.Finger1 = 0;
+		pointToSend.Position.Fingers.Finger2 = 0;
+		pointToSend.Position.Fingers.Finger3 = 0;
+
+		for (int i = 0; i < 200; i++)
+		{
+			//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
+			MySendBasicTrajectory(pointToSend);
+			sleep(5);	
+		}
+
+		pointToSend.Position.CartesianPosition.Y = 0;
+		pointToSend.Position.CartesianPosition.Z = 0.1;
+
+		for (int i = 0; i < 200; i++)
+		{
+			//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
+			MySendBasicTrajectory(pointToSend);
+			sleep(5);	
+		}
+
+		cout << "Send the robot to HOME position" << endl;
+		MyMoveHome();
+
+		//We specify that this point will be an angular(joint by joint) position.
+		pointToSend.Position.Type = CARTESIAN_POSITION;
+
+		//We get the actual angular command of the robot.
+		MyGetCartesianCommand(currentCommand);
+
+		pointToSend.Position.CartesianPosition.X = currentCommand.Coordinates.X;
+		pointToSend.Position.CartesianPosition.Y = currentCommand.Coordinates.Y - 0.1f;
+		pointToSend.Position.CartesianPosition.Z = currentCommand.Coordinates.Z;
+		pointToSend.Position.CartesianPosition.ThetaX = currentCommand.Coordinates.ThetaX;
+		pointToSend.Position.CartesianPosition.ThetaY = currentCommand.Coordinates.ThetaY;
+		pointToSend.Position.CartesianPosition.ThetaZ = currentCommand.Coordinates.ThetaZ;
+
+		cout << "*********************************" << endl;
+		cout << "Sending the first point to the robot." << endl;
+		MySendBasicTrajectory(pointToSend);
+
+		pointToSend.Position.CartesianPosition.Z = currentCommand.Coordinates.Z + 0.1f;
+		cout << "Sending the second point to the robot." << endl;
+		MySendBasicTrajectory(pointToSend);
+
+		cout << "*********************************" << endl << endl << endl;
+	}
+	return 1;
+}
+
+int get_actuator_current(int actuator_id, int result)
+{
+	AngularPosition current;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+
+		MyGetAngularCurrent(current);
+
+		cout << "*********************************" << endl;
+		cout << "Actuator 1   current : " << current.Actuators.Actuator1 << " A" << endl;
+		cout << "Actuator 2   current : " << current.Actuators.Actuator2 << " A" << endl;
+		cout << "Actuator 3   current : " << current.Actuators.Actuator3 << " A" << endl;
+		cout << "Actuator 4   current : " << current.Actuators.Actuator4 << " A" << endl;
+		cout << "Actuator 5   current : " << current.Actuators.Actuator5 << " A" << endl;
+		cout << "Actuator 6   current : " << current.Actuators.Actuator6 << " A" << endl;
+		cout << "Actuator 7   current : " << current.Actuators.Actuator7 << " A" << endl;
+		cout << "*********************************" << endl << endl << endl;
+	}
+	return 1;
+}
+
+int get_angular_info(int actuator_id, int result)
+{
+	AngularPosition dataCommand;
+	AngularPosition dataPosition;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+
+		(*MyGetAngularCommand)(dataCommand);
+		(*MyGetAngularPosition)(dataPosition);
+
+		cout << "*********************************" << endl;
+		cout << "Actuator 1   command : " << dataCommand.Actuators.Actuator1 << " deg" << "     Position : " << dataPosition.Actuators.Actuator1 << " deg" << endl;
+		cout << "Actuator 2   command : " << dataCommand.Actuators.Actuator2 << " deg" << "     Position : " << dataPosition.Actuators.Actuator2 << " deg" << endl;
+		cout << "Actuator 3   command : " << dataCommand.Actuators.Actuator3 << " deg" << "     Position : " << dataPosition.Actuators.Actuator3 << " deg" << endl;
+		cout << "Actuator 4   command : " << dataCommand.Actuators.Actuator4 << " deg" << "     Position : " << dataPosition.Actuators.Actuator4 << " deg" << endl;
+		cout << "Actuator 5   command : " << dataCommand.Actuators.Actuator5 << " deg" << "     Position : " << dataPosition.Actuators.Actuator5 << " deg" << endl;
+		cout << "Actuator 6   command : " << dataCommand.Actuators.Actuator6 << " deg" << "     Position : " << dataPosition.Actuators.Actuator6 << " deg" << endl;
+		cout << "Actuator 7   command : " << dataCommand.Actuators.Actuator7 << " deg" << "     Position : " << dataPosition.Actuators.Actuator7 << " deg" << endl << endl;
+
+		cout << "  Finger 1   command: " << dataCommand.Fingers.Finger1 << "     Position : " << dataPosition.Fingers.Finger1 << endl;
+		cout << "  Finger 2   command: " << dataCommand.Fingers.Finger2 << "     Position : " << dataPosition.Fingers.Finger2 << endl;
+		cout << "  Finger 3   command: " << dataCommand.Fingers.Finger3 << "     Position : " << dataPosition.Fingers.Finger3 << endl;
+		cout << "*********************************" << endl << endl << endl;
+	}
+
+	return 1;
+}
+
+int get_cartesian_info(int actuator_id, int result)
+{
+	CartesianPosition dataCommand;
+	CartesianPosition dataPosition;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+
+		(*MyGetCartesianCommand)(dataCommand);
+		(*MyGetCartesianPosition)(dataPosition);
+
+		cout << "*********************************" << endl;
+		cout << "X   command : " << dataCommand.Coordinates.X << " m" << "     Position : " << dataPosition.Coordinates.X << " m" << endl;
+		cout << "Y   command : " << dataCommand.Coordinates.Y << " m" << "     Position : " << dataPosition.Coordinates.Y << " m" << endl;
+		cout << "Z   command : " << dataCommand.Coordinates.Z << " m" << "     Position : " << dataPosition.Coordinates.Z << " m" << endl;
+		cout << "Theta X   command : " << dataCommand.Coordinates.ThetaX << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaX << " Rad" << endl;
+		cout << "Theta Y   command : " << dataCommand.Coordinates.ThetaY << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaY << " Rad" << endl;
+		cout << "Theta Z   command : " << dataCommand.Coordinates.ThetaZ << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaZ << " Rad" << endl << endl;
+
+		cout << "  Finger 1   command: " << dataCommand.Fingers.Finger1 << "     Position : " << dataPosition.Fingers.Finger1 << endl;
+		cout << "  Finger 2   command: " << dataCommand.Fingers.Finger2 << "     Position : " << dataPosition.Fingers.Finger2 << endl;
+		cout << "  Finger 3   command: " << dataCommand.Fingers.Finger3 << "     Position : " << dataPosition.Fingers.Finger3 << endl;
+		cout << "*********************************" << endl << endl << endl;
+	}
+
+	return 1;
+}
+
+int get_temperature(int actuator_id, int result)
+{
+	GeneralInformations data;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+
+		MyGetGeneralInformations(data);
+
+		cout << "*********************************" << endl;
+		cout << "Actuator 1 temperature : " << data.ActuatorsTemperatures[0] << " °C" << endl;
+		cout << "Actuator 2 temperature : " << data.ActuatorsTemperatures[1] << " °C" << endl;
+		cout << "Actuator 3 temperature : " << data.ActuatorsTemperatures[2] << " °C" << endl;
+		cout << "Actuator 4 temperature : " << data.ActuatorsTemperatures[3] << " °C" << endl;
+		cout << "Actuator 5 temperature : " << data.ActuatorsTemperatures[4] << " °C" << endl;
+		cout << "Actuator 6 temperature : " << data.ActuatorsTemperatures[5] << " °C" << endl;
+		cout << "Actuator 7 temperature : " << data.ActuatorsTemperatures[6] << " °C" << endl;
+		cout << "*********************************" << endl << endl << endl;
+	}
+}
+
+int get_torque_value(int result)
+{
+	AngularPosition torque;
+	AngularPosition torqueGravityFree;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+
+		MyGetAngularForce(torque);
+		MyGetAngularForceGravityFree(torqueGravityFree);
+		cout << "*********************************" << endl;
+		cout << "Actuator 1   torque : " << torque.Actuators.Actuator1 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator1 << " N*m" << endl;
+		cout << "Actuator 2   torque : " << torque.Actuators.Actuator2 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator2 << " N*m" << endl;
+		cout << "Actuator 3   torque : " << torque.Actuators.Actuator3 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator3 << " N*m" << endl;
+		cout << "Actuator 4   torque : " << torque.Actuators.Actuator4 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator4 << " N*m" << endl;
+		cout << "Actuator 5   torque : " << torque.Actuators.Actuator5 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator5 << " N*m" << endl;
+		cout << "Actuator 6   torque : " << torque.Actuators.Actuator6 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator6 << " N*m" << endl;
+		cout << "Actuator 7   torque : " << torque.Actuators.Actuator7 << " N*m" << "     without gravity : " << torqueGravityFree.Actuators.Actuator7 << " N*m" << endl;
+		cout << "*********************************" << endl << endl << endl;
+	}
+
+}
+
 void sleep(int duration) {
 #ifdef __linux__ 
 	usleep(duration * 1000);
@@ -228,7 +492,7 @@ int InitializeAPIFunctions(){
 #ifdef __linux__ 
 	commandLayer_handle = dlopen(
 		"Kinova.API.USBCommandLayerUbuntu.so",
-		RTLD_NOW|RTLD_GLOBAL
+		RTLD_NOW | RTLD_GLOBAL
 	);
 
 	//We load the functions from the library
