@@ -1,34 +1,9 @@
-import json
 import zmq
+import json
 import time
-
-
-
-jd = json.load(open("param.json","r"))
-
-print(jd)
-
-""""
-{
-    "general": {
-        "option":0
-    },
-    "Motors":
-    [{
-        "id":"0x0000000",
-        "angle":0
-    },
-    {
-        "id":"0x0000000",
-        "angle":0
-    }
-]}
-"""
 
 def apply(params):
     open('param.json','w').write(json.dumps(params))
-
-jd["general"]["option"] = 1
 
 context = zmq.Context()
 socket = context.socket(zmq.REP)
