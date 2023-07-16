@@ -1,57 +1,40 @@
-#include <iostream>
+#include <zmq.hpp>
 #include <string>
-#include <vector>
-#include <map>
-#include <fstream>
+#include <iostream>
 
-
-#include <chrono>
-#include <thread>
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 
 #ifdef __linux__
-
 #include <unistd.h>
-
 #elif _WIN32
-
 #include <Windows.h>
-
 #endif
 
-#include <zmq.hpp>
-
-/**
-* @brief This file is using for handling ros requests and responses.
-**/
-int connect()
+int main ()
 {
-    using namespace std::chrono_literals;
+    //  Prepare our context and socket
+    zmq::context_t context (1);
+    zmq::socket_t socket (context, ZMQ_REQ);
 
-    // initialize the zmq context with a single IO thread
-    zmq::context_t context{1};
+    std::cout << "Connecting to hello world server…" << std::endl;
+    socket.connect ("tcp://localhost:5555");
 
-    // construct a REP (reply) socket and bind to interface
-    zmq::socket_t socket{context, zmq::socket_type::rep};
-    socket.bind("tcp://*:5555");
+    //  Do 10 requests, waiting each time for a response
+    for (int request_nbr = 0; request_nbr != 10; request_nbr++) {
 
-    // prepare some static data for responses
-    const std::string data{"World"};
+        zmq::message_t request (6);
+        memcpy ((void *) request.data (), "reply", 5);
+        std::cout << "Sending Hello " << request_nbr << "…" << std::endl;
+        socket.send (request);
 
-    for (;;)
-    {
-        zmq::message_t request;
-
-        // receive a request from client
-        socket.recv(request, zmq::recv_flags::none);
-        std::cout << "Received " << request.to_string() << std::endl;
-
-        // simulate work
-        std::this_thread::sleep_for(1s);
-
-        // send the reply to the client
-        socket.send(zmq::buffer(data), zmq::send_flags::none);
+        //  Get the reply.
+        zmq::message_t reply;
+        socket.recv (&reply);
+        std::cout << "Received World " << reply << std::endl;
+    
     }
-
     return 0;
 }
 
