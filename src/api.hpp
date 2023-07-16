@@ -6,5 +6,6 @@
 #include <map>
 
 int connect();
+void sleep(int duration);
 
 #endif // __API_H__

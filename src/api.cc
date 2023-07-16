@@ -12,13 +12,23 @@
 #include <Windows.h>
 #endif
 
-int main ()
+int connect();
+int sleep();
+int main();
+
+int main()
+{
+    int connection = connect();
+    return 0;
+}
+
+int connect()
 {
     //  Prepare our context and socket
     zmq::context_t context (1);
     zmq::socket_t socket (context, ZMQ_REQ);
 
-    std::cout << "Connecting to hello world server…" << std::endl;
+    std::cout << "Connecting to hello world server..." << std::endl;
     socket.connect ("tcp://localhost:5555");
 
     //  Do 10 requests, waiting each time for a response
@@ -26,12 +36,12 @@ int main ()
 
         zmq::message_t request (6);
         memcpy ((void *) request.data (), "reply", 5);
-        std::cout << "Sending Hello " << request_nbr << "…" << std::endl;
+        std::cout << "Sending Hello " << request_nbr << "..." << std::endl;
         socket.send (request);
 
         //  Get the reply.
         zmq::message_t reply;
-        socket.recv (&reply);
+        socket.recv(reply);
         std::cout << "Received World " << reply << std::endl;
     
     }

@@ -2,10 +2,10 @@ CC = g++
 
 BIN_FOLDER = bin
 BIN_NAME = robot_arm
-fn = main
+fn = api
 FILE_NAME = $(fn)
 
-ARGS = -Iinclude/ -ldl -lzmq -Wall 
+ARGS = -Iinclude/ -ldl -lzmq
 
 build:
 	mkdir $(BIN_FOLDER)
