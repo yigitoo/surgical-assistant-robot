@@ -1,9 +1,7 @@
 package lib
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -15,11 +13,7 @@ var iPORT int16 = config.GetPort()
 var PORT = fmt.Sprintf(":%s", strconv.Itoa(int(iPORT)))
 
 func SetupApi() *gin.Engine {
-	context := context.TODO()
-
 	InitializeLogger()
-	config.SetApiKeys()
-
 	InfoLogger.Println("===PROGRAM_STARTED===")
 
 	r := gin.Default()
@@ -33,40 +27,25 @@ func SetupApi() *gin.Engine {
 		ctx.HTML(http.StatusOK, "index.html", gin.H{
 			"content": "This is an index page...",
 		})
-	})
-
-	r.GET("/dumpInfos", func(ctx *gin.Context) {
-		success := true
-		all_infos, err := FetchAllInfos(context)
-
-		if err != nil {
-			log.Fatal(err)
-			success = false
-		}
-
-		if success {
-			ctx.JSON(http.StatusOK, gin.H{
-				"data":       all_infos,
-				"successful": true,
-				"status":     http.StatusOK,
-			})
-			return
-		}
-
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"succesful": false,
-			"status":    http.StatusInternalServerError,
-		})
+		InfoLogger.Println("GET / HTTP/1. 200")
 	})
 
 	r.GET("/id/:motorid", func(ctx *gin.Context) {
 		motor_id := ctx.Params.ByName("motorid")
-		motor, err := GetMotorById(motor_id)
-		LogError(err)
+		motor_info, err := GetMotorById(motor_id)
+		if err != nil {
+			LogError(err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"motor_id": motor_id,
+				"status":   http.StatusInternalServerError,
+				"error":    err.Error(),
+				"success":  false,
+			})
+		}
 
 		ctx.JSON(http.StatusOK, gin.H{
 			"motor_id":   motor_id,
-			"motor_info": motor,
+			"motor_info": motor_info,
 			"successful": true,
 			"status":     http.StatusOK,
 		})

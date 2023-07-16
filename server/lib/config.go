@@ -83,10 +83,7 @@ func (c *Config) SetApiKeys() {
 			- Getter of API Keys map from .env file in the root of golang project.
 	*/
 	godotenv.Load()
-	api_keys := make(map[string]string, 3)
-
-	// setting
-	api_keys["geocode"] = os.Getenv("API_KEY_GEOCODE")
+	api_keys := make(map[string]string)
 
 	// put in config
 	c.ApiKeys = api_keys
