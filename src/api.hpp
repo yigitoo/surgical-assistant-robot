@@ -5,8 +5,6 @@
 #include <vector>
 #include <map>
 
-std::map<std::string, std::string> parse_file(const std::string filepath);
-std::map<std::string, std::string> parse_requests();
-std::vector<float> parse_servo_angles();
+int connect();
 
 #endif // __API_H__
