@@ -28,17 +28,21 @@ SERVICES.
     </tr>
   </thead>
   <tbody>
+    <!--
+    DEPRECATION NOTICE
     <tr>
       <td>Dump All Infos</td>
       <td>GET</td>
       <td>/dumpInfos</td>
     </tr>
+    -->
     <tr>
       <td>Get Actuator's All Sensor Values By ID</td>
       <td>GET</td>
       <td>/id/&lt;int:id&gt;</td>
     </tr>
     <!--
+    DEPRECATION NOTICE
     <tr>
       <td>Get Actuator Sensor Values By ID</td>
       <td>GET</td>
@@ -48,7 +52,7 @@ SERVICES.
     <tr>
       <td>Send a cmd to motors/actuators.</td>
       <td>POST</td>
-      <td>/id/&lt;int:id&gt;/</td>
+      <td>/</td>
     </tr>
   </tbody>
 </table>
@@ -68,8 +72,11 @@ _______________________________________________________________
         * set_cartesian (end-effector)
         * set_angular  
       cmd_val:
-        * certain data types
-    POST requests need to be in json format.
+        * certain data types like
+          1. motor_id
+          2. motor_action
+          3. wanted_infos like in &lt;sensor_name&gt;
+    POST requests need to be in json forat.
 
 
 _______________________________________________________________
