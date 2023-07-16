@@ -2,8 +2,8 @@
     "ros.distro": "noetic",
     "files.associations": {
         "ostream": "cpp",
-
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "streambuf": "cpp"
     },
     "cmake.configureOnOpen": false,
     "C_Cpp.errorSquiggles": "disabled"

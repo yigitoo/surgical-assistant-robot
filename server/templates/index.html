@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+    }
+    td {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  </style>
+</head>
+<body>
+<h1 style="text-align: center;"><pre>
+Welcome to the Surgical Assistant Project Backend
+SERVICES.
+</pre></h1>
+</h1>
+<div style="margin-left: 10%; margin-top: 2.5rem;">
+<table class="table-auto text-center">
+  <thead>
+    <tr>
+      <th>Service Name</th>
+      <th>Method</th>
+      <th>Usage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dump All Infos</td>
+      <td>GET</td>
+      <td>/dumpInfos</td>
+    </tr>
+    <tr>
+      <td>Get Actuator's All Sensor Values By ID</td>
+      <td>GET</td>
+      <td>/id/&lt;int:id&gt;</td>
+    </tr>
+    <tr>
+      <td>Get Actuator Sensor Values By ID</td>
+      <td>GET</td>
+      <td>/id/&lt;int:id&gt;/&lt;sensor_name&gt;</td>
+    </tr>
+    <tr>
+      <td>Send a cmd to motors/actuators.</td>
+      <td>POST</td>
+      <td>/id/&lt;int:id&gt;/&lt;cmd_name&gt;</td>
+    </tr>
+  </tbody>
+</table>
+<pre>
+_______________________________________________________________
+
+  P.S: 
+    sensor_name:
+      * current
+      * temperature
+      * angular_info
+      * cartesian_info
+      * torque_value
+    cmd_name:
+      * admittance_mod
+      * set_cartesian (end-effector)
+      * set_angular  
+    POST requests need to be in json format.
+
+
+_______________________________________________________________
+</pre>
+</div>
+</body>
+</html>

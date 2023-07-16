@@ -87,33 +87,36 @@ int main(int argc, char *argv[])
 	{
 		cout << "The device has not been found. Please open and setup device for usage." << endl;
 	}
-	if (option == 1)
+
+	switch(option)
 	{
-		programResult = admittance(actuator_id, result);
-	} else if (option == 2)
-	{
-		programResult = angular_control(actuator_id, result);
-	} else if (option == 3)
-	{
-		programResult = cartesian_control(actuator_id, result);
-	} else if (option == 4)
-	{
-		programResult = get_actuator_current(actuator_id, result);
-	} else if (option == 5)
-	{
-		programResult = get_angular_info(actuator_id, result);
-	} else if (option == 6)
-	{
-		programResult = get_cartesian_info(actuator_id, result);
-	} else if (option == 7) 
-	{
-		programResult = get_temperature(actuator_id, result);
-	} else if (option == 8)
-	{
-		programResult = get_torque_value(actuator_id, result);
-	} else {
-		cout << "Error: Unknown option" << endl;
-		return 1;
+		case 1:
+            programResult = admittance(actuator_id, result);
+            break;
+        case 2:
+            programResult = angular_control(actuator_id, result);
+            break;
+        case 3:
+            programResult = cartesian_control(actuator_id, result);
+            break;
+        case 4:
+            programResult = get_actuator_current(actuator_id, result);
+            break;
+        case 5:
+            programResult = get_angular_info(actuator_id, result);
+            break;
+        case 6:
+            programResult = get_cartesian_info(actuator_id, result);
+            break;
+        case 7:
+            programResult = get_temperature(actuator_id, result);
+            break;
+        case 8:
+
+            programResult = get_torque_value(actuator_id, result);
+		default:
+			cout << "Error: Unknown option" << endl;
+			return 1;
 	}
 	cout << endl << "C L O S I N G   A P I" << endl;
 	result = (*MyCloseAPI)();
