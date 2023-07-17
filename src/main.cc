@@ -27,7 +27,9 @@ int main(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
 {
-    InitializeAPIFunctions();
+    int is_initialized = InitializeAPIFunctions();
+    if (!is_initialized) return EXIT_FAILURE;
+
     int result = (*MyInitAPI)();
     int programResult = communication_bridge(result);
     return programResult;

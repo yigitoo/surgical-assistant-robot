@@ -17,8 +17,6 @@
 #include <conio.h>
 #endif
 
-using namespace std;
-
 //Function pointers to the functions we need
 // ADMITANCE
 int(*MyInitAPI)();

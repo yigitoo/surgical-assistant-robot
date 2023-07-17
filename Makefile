@@ -5,7 +5,7 @@ BIN_NAME = robot_arm
 fn = main
 FILE_NAME = $(fn)
 
-ARGS = -Iinclude/ -ldl -lzmq -std=gnu++17 -w
+ARGS = -Iinclude/ -ldl -lzmq -w
 
 all: clean build run
 

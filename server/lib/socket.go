@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -40,37 +39,6 @@ type CartesianInfo struct {
 	ThetaZ float64 `json:"thetaZ"`
 }
 
-func GetMotorById(motor_id string) (Motor, error) {
-	var motor Motor
-	var err error
-	var socket *zmq.Socket
-	socket, err = zmq.NewSocket(zmq.REQ)
-	if err != nil {
-		return motor, err
-	}
-	defer socket.Close()
-	socket.Connect("tcp://localhost:5555")
-
-	cmd := Command{
-		Name:  "get_motor_by_id",
-		Value: motor_id,
-	}
-
-	request_payload := cmd.Name + ";" + cmd.Value
-
-	if _, err = socket.Send(request_payload, 0); err != nil {
-		DirectLogError(err)
-	}
-
-	reply, err := socket.Recv(0)
-	LogError(err)
-
-	err = json.Unmarshal([]byte(reply), &motor)
-	LogError(err)
-
-	return motor, err
-}
-
 // SendCommand handles sending the message via ZeroMQ
 func SendCommand(ctx *gin.Context) {
 	// Get the message from the request body
@@ -93,7 +61,6 @@ func SendCommand(ctx *gin.Context) {
 	}
 
 	// Send the message to the ZeroMQ server
-
 	request_payload := cmd.Name + ";" + cmd.Value
 
 	if _, err = requester.Send(request_payload, 0); err != nil {
