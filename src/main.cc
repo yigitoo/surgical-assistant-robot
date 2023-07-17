@@ -27,6 +27,15 @@ int main(int argc, char *argv[])
 
 #include <iostream>
 #include <string>
+#include <vector>
+
+#include <zmq.hpp>
+
+
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+
 #include <zmq.hpp>
 
 int communication() {
@@ -52,18 +61,23 @@ int communication() {
 
         std::vector<std::string> request_payload = splitstr(receivedMessage,';');
 
-        if (request_payload[0] == "get_motor_by_id") {
+        if (request_payload[0] == "get_motor_by_id" && stoi(request_payload[1]) <= 6) {
             int motor_id = stoi(request_payload[1]);
 
             // Send the reply back to the client
-            std::string replyMessage = "reply to motor_id " + std::to_string(motor_id);
+            std::string replyMessage = "{\"reply\": \"motor_id " + std::to_string(motor_id) + "\"}";
             zmq::message_t reply(replyMessage.size());
             memcpy(reply.data(), replyMessage.data(), replyMessage.size());
             socket.send(reply, zmq::send_flags::none);
-            
+            std::cout << "Sent reply: " << replyMessage << std::endl;
         }
         else {
-            break;   
+            int motor_id{0};
+
+            std::string replyMessage = "{\"reply:\": \"motor_id " + std::to_string(motor_id ) + "\"}";
+            zmq::message_t reply(replyMessage.size());
+            memcpy(reply.data(), replyMessage.data(), replyMessage.size());
+            socket.send(reply, zmq::send_flags::none);   
         }
     }
 

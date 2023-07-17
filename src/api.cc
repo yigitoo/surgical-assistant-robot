@@ -16,16 +16,6 @@
 #endif
 
 #include "api.hpp"
-
-using namespace std;
-
-//A handle to the API.
-#ifdef __linux__ 
-void * commandLayer_handle;
-#elif _WIN32
-HINSTANCE commandLayer_handle;
-#endif
-
 //Function pointers to the functions we need
 // ADMITANCE
 int(*MyInitAPI)();
@@ -61,40 +51,28 @@ int(*MyGetGeneralInformations)(GeneralInformations &Response);
 int(*MyGetAngularForce)(AngularPosition &Response);
 int(*MyGetAngularForceGravityFree)(AngularPosition &Response);
 
-void sleep(int duration);
-int admittance_control(int actuator_id, int result);
-int angular_control(int actuator_id, int result);
-int cartesian_control(int actuator_id, int result);
-int get_actuator_current(int actuator_id, int result);
-int get_angular_info(int actuator_id, int result);
-int get_cartesian_info(int actuator_id, int result);
-int get_temperature(int actuator_id, int result);
-int get_torque_value(int actuator_id, int result);
-int InitializeAPIFunctions();
-
 int admittance_control(int actuator_id, int result)
 {
 	KinovaDevice list[MAX_KINOVA_DEVICE];
 
 	int devicesCount = MyGetDevices(list, result);
-
 	for (int i = 0; i < devicesCount; i++)
 	{
-	cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
 
-	//Setting the current device as the active device.
-	MySetActiveDevice(list[i]);
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
 
-	MyStartForceControl();
+		MyStartForceControl();
 
-	cout << endl << "The robot's admittance control is now active, you can move it freely with your hand." <<
-	" To deactivate it call the function StopForceControl()." << devicesCount << endl;
-	}
-	
+		std::cout << std::endl << "The robot's admittance control is now active, you can move it freely with your hand." <<
+		" To deactivate it call the function StopForceControl()." << devicesCount << std::endl;
+		}
+		
 	return 1;
 }
 
-int angular_control(int actuator_id, int result)
+std::vector<float> angular_control(int actuator_id, int result)
 {
 	AngularPosition currentCommand;
 
@@ -176,14 +154,25 @@ int angular_control(int actuator_id, int result)
 		MySendBasicTrajectory(pointToSend);
 
 		std::cout << "*********************************" << std::endl << std::endl << std::endl;
+
+		std::cout << std::endl << "WARNING: Your robot is now set to angular control. If you use the joystick, it will be a joint by joint movement." << std::endl;
+		
+		std::vector<float> angles;
+		angles.push_back(pointToSend.Position.Actuators.Actuator1);
+		angles.push_back(pointToSend.Position.Actuators.Actuator2);
+		angles.push_back(pointToSend.Position.Actuators.Actuator3);
+		angles.push_back(pointToSend.Position.Actuators.Actuator4);
+		angles.push_back(pointToSend.Position.Actuators.Actuator5);
+		angles.push_back(pointToSend.Position.Actuators.Actuator6);
+		angles.push_back(pointToSend.Position.Actuators.Actuator7);
+		return angles;
 	}
 
-	std::cout << std::endl << "WARNING: Your robot is now set to angular control. If you use the joystick, it will be a joint by joint movement." << std::endl;
-
-	return 1;
+	std::vector<float> null;
+	return null;
 }
 
-int cartesian_control(int actuator_id, int result)
+CartesianInfo cartesian_control(int result)
 {
     CartesianPosition currentCommand;
 
@@ -193,15 +182,15 @@ int cartesian_control(int actuator_id, int result)
 
 	for (int i = 0; i < devicesCount; i++)
 	{
-		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
 
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
 
-		cout << "Send the robot to HOME position" << endl;
+		std::cout << "Send the robot to HOME position" << std::endl;
 		MyMoveHome();
 
-		cout << "Initializing the fingers" << endl;
+		std::cout << "Initializing the fingers" << std::endl;
 		MyInitFingers();
 
 		TrajectoryPoint pointToSend;
@@ -238,7 +227,7 @@ int cartesian_control(int actuator_id, int result)
 			sleep(5);	
 		}
 
-		cout << "Send the robot to HOME position" << endl;
+		std::cout << "Send the robot to HOME position" << std::endl;
 		MyMoveHome();
 
 		//We specify that this point will be an angular(joint by joint) position.
@@ -254,20 +243,24 @@ int cartesian_control(int actuator_id, int result)
 		pointToSend.Position.CartesianPosition.ThetaY = currentCommand.Coordinates.ThetaY;
 		pointToSend.Position.CartesianPosition.ThetaZ = currentCommand.Coordinates.ThetaZ;
 
-		cout << "*********************************" << endl;
-		cout << "Sending the first point to the robot." << endl;
+		std::cout << "*********************************" << std::endl;
+		std::cout << "Sending the first point to the robot." << std::endl;
 		MySendBasicTrajectory(pointToSend);
 
 		pointToSend.Position.CartesianPosition.Z = currentCommand.Coordinates.Z + 0.1f;
-		cout << "Sending the second point to the robot." << endl;
+		std::cout << "Sending the second point to the robot." << std::endl;
 		MySendBasicTrajectory(pointToSend);
 
-		cout << "*********************************" << endl << endl << endl;
+		std::cout << "*********************************" << std::endl << std::endl << std::endl;
+
+		return pointToSend.Position.CartesianPosition;
 	}
-	return 1;
+
+	CartesianInfo null;
+	return null;
 }
 
-int get_actuator_current(int actuator_id, int result)
+float get_actuator_current(int actuator_id, int result)
 {
 	AngularPosition current;
 
@@ -277,27 +270,91 @@ int get_actuator_current(int actuator_id, int result)
 
 	for (int i = 0; i < devicesCount; i++)
 	{
-		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
 
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
 
 		MyGetAngularCurrent(current);
 
-		cout << "*********************************" << endl;
-		cout << "Actuator 1   current : " << current.Actuators.Actuator1 << " A" << endl;
-		cout << "Actuator 2   current : " << current.Actuators.Actuator2 << " A" << endl;
-		cout << "Actuator 3   current : " << current.Actuators.Actuator3 << " A" << endl;
-		cout << "Actuator 4   current : " << current.Actuators.Actuator4 << " A" << endl;
-		cout << "Actuator 5   current : " << current.Actuators.Actuator5 << " A" << endl;
-		cout << "Actuator 6   current : " << current.Actuators.Actuator6 << " A" << endl;
-		cout << "Actuator 7   current : " << current.Actuators.Actuator7 << " A" << endl;
-		cout << "*********************************" << endl << endl << endl;
+		std::cout << "*********************************" << std::endl;
+		std::cout << "Actuator 1   current : " << current.Actuators.Actuator1 << " A" << std::endl;
+		std::cout << "Actuator 2   current : " << current.Actuators.Actuator2 << " A" << std::endl;
+		std::cout << "Actuator 3   current : " << current.Actuators.Actuator3 << " A" << std::endl;
+		std::cout << "Actuator 4   current : " << current.Actuators.Actuator4 << " A" << std::endl;
+		std::cout << "Actuator 5   current : " << current.Actuators.Actuator5 << " A" << std::endl;
+		std::cout << "Actuator 6   current : " << current.Actuators.Actuator6 << " A" << std::endl;
+		std::cout << "Actuator 7   current : " << current.Actuators.Actuator7 << " A" << std::endl;
+		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 	}
-	return 1;
+	switch(actuator_id) {
+		case 1:
+            return current.Actuators.Actuator1;
+            break;
+        case 2:
+            return current.Actuators.Actuator2;
+            break;
+        case 3:
+            return current.Actuators.Actuator3;
+            break;
+        case 4:
+            return current.Actuators.Actuator4;
+            break;
+        case 5:
+            return current.Actuators.Actuator5;
+            break;
+        case 6:
+            return current.Actuators.Actuator6;
+            break;
+        case 7:
+            return current.Actuators.Actuator7;
+            break;
+        default:
+            return -9999;
+            break;
+	}
 }
 
-int get_angular_info(int actuator_id, int result)
+std::vector<float> get_actuator_currents(int result)
+{
+	AngularPosition current;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
+
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+
+		MyGetAngularCurrent(current);
+
+		std::cout << "*********************************" << std::endl;
+		std::cout << "Actuator 1   current : " << current.Actuators.Actuator1 << " A" << std::endl;
+		std::cout << "Actuator 2   current : " << current.Actuators.Actuator2 << " A" << std::endl;
+		std::cout << "Actuator 3   current : " << current.Actuators.Actuator3 << " A" << std::endl;
+		std::cout << "Actuator 4   current : " << current.Actuators.Actuator4 << " A" << std::endl;
+		std::cout << "Actuator 5   current : " << current.Actuators.Actuator5 << " A" << std::endl;
+		std::cout << "Actuator 6   current : " << current.Actuators.Actuator6 << " A" << std::endl;
+		std::cout << "Actuator 7   current : " << current.Actuators.Actuator7 << " A" << std::endl;
+		std::cout << "*********************************" << std::endl << std::endl << std::endl;
+	}
+
+	std::vector<float> currents;
+	currents.push_back(current.Actuators.Actuator1);
+	currents.push_back(current.Actuators.Actuator2);
+	currents.push_back(current.Actuators.Actuator3);
+	currents.push_back(current.Actuators.Actuator4);
+	currents.push_back(current.Actuators.Actuator5);
+	currents.push_back(current.Actuators.Actuator6);
+	currents.push_back(current.Actuators.Actuator7);
+	return currents;
+}
+
+std::vector<float> get_angular_info(int actuator_id, int result)
 {
 	AngularPosition dataCommand;
 	AngularPosition dataPosition;
@@ -308,7 +365,7 @@ int get_angular_info(int actuator_id, int result)
 
 	for (int i = 0; i < devicesCount; i++)
 	{
-		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
 
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
@@ -316,25 +373,123 @@ int get_angular_info(int actuator_id, int result)
 		(*MyGetAngularCommand)(dataCommand);
 		(*MyGetAngularPosition)(dataPosition);
 
-		cout << "*********************************" << endl;
-		cout << "Actuator 1   command : " << dataCommand.Actuators.Actuator1 << " deg" << "     Position : " << dataPosition.Actuators.Actuator1 << " deg" << endl;
-		cout << "Actuator 2   command : " << dataCommand.Actuators.Actuator2 << " deg" << "     Position : " << dataPosition.Actuators.Actuator2 << " deg" << endl;
-		cout << "Actuator 3   command : " << dataCommand.Actuators.Actuator3 << " deg" << "     Position : " << dataPosition.Actuators.Actuator3 << " deg" << endl;
-		cout << "Actuator 4   command : " << dataCommand.Actuators.Actuator4 << " deg" << "     Position : " << dataPosition.Actuators.Actuator4 << " deg" << endl;
-		cout << "Actuator 5   command : " << dataCommand.Actuators.Actuator5 << " deg" << "     Position : " << dataPosition.Actuators.Actuator5 << " deg" << endl;
-		cout << "Actuator 6   command : " << dataCommand.Actuators.Actuator6 << " deg" << "     Position : " << dataPosition.Actuators.Actuator6 << " deg" << endl;
-		cout << "Actuator 7   command : " << dataCommand.Actuators.Actuator7 << " deg" << "     Position : " << dataPosition.Actuators.Actuator7 << " deg" << endl << endl;
+		std::cout << "*********************************" << std::endl;
+		std::cout << "Actuator 1   command : " << dataCommand.Actuators.Actuator1 << " deg" << "     Position : " << dataPosition.Actuators.Actuator1 << " deg" << std::endl;
+		std::cout << "Actuator 2   command : " << dataCommand.Actuators.Actuator2 << " deg" << "     Position : " << dataPosition.Actuators.Actuator2 << " deg" << std::endl;
+		std::cout << "Actuator 3   command : " << dataCommand.Actuators.Actuator3 << " deg" << "     Position : " << dataPosition.Actuators.Actuator3 << " deg" << std::endl;
+		std::cout << "Actuator 4   command : " << dataCommand.Actuators.Actuator4 << " deg" << "     Position : " << dataPosition.Actuators.Actuator4 << " deg" << std::endl;
+		std::cout << "Actuator 5   command : " << dataCommand.Actuators.Actuator5 << " deg" << "     Position : " << dataPosition.Actuators.Actuator5 << " deg" << std::endl;
+		std::cout << "Actuator 6   command : " << dataCommand.Actuators.Actuator6 << " deg" << "     Position : " << dataPosition.Actuators.Actuator6 << " deg" << std::endl;
+		std::cout << "Actuator 7   command : " << dataCommand.Actuators.Actuator7 << " deg" << "     Position : " << dataPosition.Actuators.Actuator7 << " deg" << std::endl << std::endl;
 
-		cout << "  Finger 1   command: " << dataCommand.Fingers.Finger1 << "     Position : " << dataPosition.Fingers.Finger1 << endl;
-		cout << "  Finger 2   command: " << dataCommand.Fingers.Finger2 << "     Position : " << dataPosition.Fingers.Finger2 << endl;
-		cout << "  Finger 3   command: " << dataCommand.Fingers.Finger3 << "     Position : " << dataPosition.Fingers.Finger3 << endl;
-		cout << "*********************************" << endl << endl << endl;
+		std::cout << "  Finger 1   command: " << dataCommand.Fingers.Finger1 << "     Position : " << dataPosition.Fingers.Finger1 << std::endl;
+		std::cout << "  Finger 2   command: " << dataCommand.Fingers.Finger2 << "     Position : " << dataPosition.Fingers.Finger2 << std::endl;
+		std::cout << "  Finger 3   command: " << dataCommand.Fingers.Finger3 << "     Position : " << dataPosition.Fingers.Finger3 << std::endl;
+		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 	}
 
-	return 1;
+	std::vector<float> response;
+
+	switch (actuator_id)
+	{
+		case 1:
+			response.push_back(dataCommand.Actuators.Actuator1);
+			response.push_back(dataPosition.Actuators.Actuator1);
+			break;
+		case 2:
+			response.push_back(dataCommand.Actuators.Actuator2);
+			response.push_back(dataPosition.Actuators.Actuator2);
+			break;
+		case 3:
+			response.push_back(dataCommand.Actuators.Actuator3);
+			response.push_back(dataPosition.Actuators.Actuator3);
+			break;
+		case 4:
+			response.push_back(dataCommand.Actuators.Actuator4);
+			response.push_back(dataPosition.Actuators.Actuator4);
+			break;
+		case 5:
+			response.push_back(dataCommand.Actuators.Actuator5);
+			response.push_back(dataPosition.Actuators.Actuator5);
+			break;
+		case 6:
+			response.push_back(dataCommand.Actuators.Actuator6);
+			response.push_back(dataPosition.Actuators.Actuator6);
+			break;
+		case 7:
+			response.push_back(dataCommand.Actuators.Actuator2);
+			response.push_back(dataPosition.Actuators.Actuator2);
+			break;
+		default:
+			response.push_back(-9999);
+			response.push_back(-9999);
+			break;
+	}
+
+	return response;
 }
 
-int get_cartesian_info(int actuator_id, int result)
+std::vector<std::vector<float>> get_angular_infos(int result)
+{
+	AngularPosition dataCommand;
+	AngularPosition dataPosition;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
+
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+
+		(*MyGetAngularCommand)(dataCommand);
+		(*MyGetAngularPosition)(dataPosition);
+
+		std::cout << "*********************************" << std::endl;
+		std::cout << "Actuator 1   command : " << dataCommand.Actuators.Actuator1 << " deg" << "     Position : " << dataPosition.Actuators.Actuator1 << " deg" << std::endl;
+		std::cout << "Actuator 2   command : " << dataCommand.Actuators.Actuator2 << " deg" << "     Position : " << dataPosition.Actuators.Actuator2 << " deg" << std::endl;
+		std::cout << "Actuator 3   command : " << dataCommand.Actuators.Actuator3 << " deg" << "     Position : " << dataPosition.Actuators.Actuator3 << " deg" << std::endl;
+		std::cout << "Actuator 4   command : " << dataCommand.Actuators.Actuator4 << " deg" << "     Position : " << dataPosition.Actuators.Actuator4 << " deg" << std::endl;
+		std::cout << "Actuator 5   command : " << dataCommand.Actuators.Actuator5 << " deg" << "     Position : " << dataPosition.Actuators.Actuator5 << " deg" << std::endl;
+		std::cout << "Actuator 6   command : " << dataCommand.Actuators.Actuator6 << " deg" << "     Position : " << dataPosition.Actuators.Actuator6 << " deg" << std::endl;
+		std::cout << "Actuator 7   command : " << dataCommand.Actuators.Actuator7 << " deg" << "     Position : " << dataPosition.Actuators.Actuator7 << " deg" << std::endl << std::endl;
+
+		std::cout << "  Finger 1   command: " << dataCommand.Fingers.Finger1 << "     Position : " << dataPosition.Fingers.Finger1 << std::endl;
+		std::cout << "  Finger 2   command: " << dataCommand.Fingers.Finger2 << "     Position : " << dataPosition.Fingers.Finger2 << std::endl;
+		std::cout << "  Finger 3   command: " << dataCommand.Fingers.Finger3 << "     Position : " << dataPosition.Fingers.Finger3 << std::endl;
+		std::cout << "*********************************" << std::endl << std::endl << std::endl;
+
+		std::vector<std::vector<float>> angular_infos;
+		std::vector<float> dataCmd;
+		std::vector<float> dataPos;
+
+		dataCmd.push_back(dataCommand.Actuators.Actuator1);
+		dataCmd.push_back(dataCommand.Actuators.Actuator2);
+		dataCmd.push_back(dataCommand.Actuators.Actuator3);
+		dataCmd.push_back(dataCommand.Actuators.Actuator4);
+		dataCmd.push_back(dataCommand.Actuators.Actuator5);
+		dataCmd.push_back(dataCommand.Actuators.Actuator6);
+		dataCmd.push_back(dataCommand.Actuators.Actuator7);
+
+		dataPos.push_back(dataPosition.Actuators.Actuator1);
+		dataPos.push_back(dataPosition.Actuators.Actuator2);
+		dataPos.push_back(dataPosition.Actuators.Actuator3);
+		dataPos.push_back(dataPosition.Actuators.Actuator4);
+		dataPos.push_back(dataPosition.Actuators.Actuator5);
+		dataPos.push_back(dataPosition.Actuators.Actuator6);
+		dataPos.push_back(dataPosition.Actuators.Actuator7);
+
+		angular_infos.push_back(dataCmd);
+		angular_infos.push_back(dataPos);
+	}
+	std::vector<std::vector<float>> null;
+	return null;
+}
+
+std::vector<CartesianInfo> get_cartesian_info(int actuator_id, int result)
 {
 	CartesianPosition dataCommand;
 	CartesianPosition dataPosition;
@@ -347,7 +502,7 @@ int get_cartesian_info(int actuator_id, int result)
 
 	for (int i = 0; i < devicesCount; i++)
 	{
-		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
 
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
@@ -355,25 +510,32 @@ int get_cartesian_info(int actuator_id, int result)
 		(*MyGetCartesianCommand)(dataCommand);
 		(*MyGetCartesianPosition)(dataPosition);
 
-		cout << "*********************************" << endl;
-		cout << "X   command : " << dataCommand.Coordinates.X << " m" << "     Position : " << dataPosition.Coordinates.X << " m" << endl;
-		cout << "Y   command : " << dataCommand.Coordinates.Y << " m" << "     Position : " << dataPosition.Coordinates.Y << " m" << endl;
-		cout << "Z   command : " << dataCommand.Coordinates.Z << " m" << "     Position : " << dataPosition.Coordinates.Z << " m" << endl;
-		cout << "Theta X   command : " << dataCommand.Coordinates.ThetaX << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaX << " Rad" << endl;
-		cout << "Theta Y   command : " << dataCommand.Coordinates.ThetaY << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaY << " Rad" << endl;
-		cout << "Theta Z   command : " << dataCommand.Coordinates.ThetaZ << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaZ << " Rad" << endl << endl;
+		std::cout << "*********************************" << std::endl;
+		std::cout << "X   command : " << dataCommand.Coordinates.X << " m" << "     Position : " << dataPosition.Coordinates.X << " m" << std::endl;
+		std::cout << "Y   command : " << dataCommand.Coordinates.Y << " m" << "     Position : " << dataPosition.Coordinates.Y << " m" << std::endl;
+		std::cout << "Z   command : " << dataCommand.Coordinates.Z << " m" << "     Position : " << dataPosition.Coordinates.Z << " m" << std::endl;
+		std::cout << "Theta X   command : " << dataCommand.Coordinates.ThetaX << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaX << " Rad" << std::endl;
+		std::cout << "Theta Y   command : " << dataCommand.Coordinates.ThetaY << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaY << " Rad" << std::endl;
+		std::cout << "Theta Z   command : " << dataCommand.Coordinates.ThetaZ << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaZ << " Rad" << std::endl << std::endl;
 
-		cout << "  Finger 1   command: " << dataCommand.Fingers.Finger1 << "     Position : " << dataPosition.Fingers.Finger1 << endl;
-		cout << "  Finger 2   command: " << dataCommand.Fingers.Finger2 << "     Position : " << dataPosition.Fingers.Finger2 << endl;
-		cout << "  Finger 3   command: " << dataCommand.Fingers.Finger3 << "     Position : " << dataPosition.Fingers.Finger3 << endl;
-		cout << "*********************************" << endl << endl << endl;
+		std::cout << "  Finger 1   command: " << dataCommand.Fingers.Finger1 << "     Position : " << dataPosition.Fingers.Finger1 << std::endl;
+		std::cout << "  Finger 2   command: " << dataCommand.Fingers.Finger2 << "     Position : " << dataPosition.Fingers.Finger2 << std::endl;
+		std::cout << "  Finger 3   command: " << dataCommand.Fingers.Finger3 << "     Position : " << dataPosition.Fingers.Finger3 << std::endl;
+		std::cout << "*********************************" << std::endl << std::endl << std::endl;
+		
+		std::vector<CartesianInfo> response;
+		response.push_back(dataCommand.Coordinates);
+		response.push_back(dataPosition.Coordinates);
+		return response;
 	}
-
-	return 1;
+	std::vector<CartesianInfo> null;
+	return null;
 }
 
-int get_temperature(int actuator_id, int result)
+float get_temperature(int actuator_id, int result)
 {
+	if (actuator_id > 7) return -9999;
+
 	GeneralInformations data;
 
 	KinovaDevice list[MAX_KINOVA_DEVICE];
@@ -382,29 +544,74 @@ int get_temperature(int actuator_id, int result)
 
 	for (int i = 0; i < devicesCount; i++)
 	{
-		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
 
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
 
 		MyGetGeneralInformations(data);
 
-		cout << "*********************************" << endl;
-		cout << "Actuator 1 temperature : " << data.ActuatorsTemperatures[0] << " °C" << endl;
-		cout << "Actuator 2 temperature : " << data.ActuatorsTemperatures[1] << " °C" << endl;
-		cout << "Actuator 3 temperature : " << data.ActuatorsTemperatures[2] << " °C" << endl;
-		cout << "Actuator 4 temperature : " << data.ActuatorsTemperatures[3] << " °C" << endl;
-		cout << "Actuator 5 temperature : " << data.ActuatorsTemperatures[4] << " °C" << endl;
-		cout << "Actuator 6 temperature : " << data.ActuatorsTemperatures[5] << " °C" << endl;
-		cout << "Actuator 7 temperature : " << data.ActuatorsTemperatures[6] << " °C" << endl;
-		cout << "*********************************" << endl << endl << endl;
+		std::cout << "*********************************" << std::endl;
+		std::cout << "Actuator 1 temperature : " << data.ActuatorsTemperatures[0] << " °C" << std::endl;
+		std::cout << "Actuator 2 temperature : " << data.ActuatorsTemperatures[1] << " °C" << std::endl;
+		std::cout << "Actuator 3 temperature : " << data.ActuatorsTemperatures[2] << " °C" << std::endl;
+		std::cout << "Actuator 4 temperature : " << data.ActuatorsTemperatures[3] << " °C" << std::endl;
+		std::cout << "Actuator 5 temperature : " << data.ActuatorsTemperatures[4] << " °C" << std::endl;
+		std::cout << "Actuator 6 temperature : " << data.ActuatorsTemperatures[5] << " °C" << std::endl;
+		std::cout << "Actuator 7 temperature : " << data.ActuatorsTemperatures[6] << " °C" << std::endl;
+		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 	}
 
-	return 1;
+	return data.ActuatorsTemperatures[actuator_id - 1];
 }
 
-int get_torque_value(int actuator_id, int result)
+std::vector<float> get_temperatures(int result)
 {
+	
+	GeneralInformations data;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
+
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+
+		MyGetGeneralInformations(data);
+
+		std::cout << "*********************************" << std::endl;
+		std::cout << "Actuator 1 temperature : " << data.ActuatorsTemperatures[0] << " °C" << std::endl;
+		std::cout << "Actuator 2 temperature : " << data.ActuatorsTemperatures[1] << " °C" << std::endl;
+		std::cout << "Actuator 3 temperature : " << data.ActuatorsTemperatures[2] << " °C" << std::endl;
+		std::cout << "Actuator 4 temperature : " << data.ActuatorsTemperatures[3] << " °C" << std::endl;
+		std::cout << "Actuator 5 temperature : " << data.ActuatorsTemperatures[4] << " °C" << std::endl;
+		std::cout << "Actuator 6 temperature : " << data.ActuatorsTemperatures[5] << " °C" << std::endl;
+		std::cout << "Actuator 7 temperature : " << data.ActuatorsTemperatures[6] << " °C" << std::endl;
+		std::cout << "*********************************" << std::endl << std::endl << std::endl;
+	}
+
+	std::vector<float> response;
+	response.push_back(data.ActuatorsTemperatures[0]);
+	response.push_back(data.ActuatorsTemperatures[1]);
+	response.push_back(data.ActuatorsTemperatures[2]);
+	response.push_back(data.ActuatorsTemperatures[3]);
+	response.push_back(data.ActuatorsTemperatures[4]);
+	response.push_back(data.ActuatorsTemperatures[5]);
+	response.push_back(data.ActuatorsTemperatures[6]);
+	return response;
+}
+
+float get_torque_value(int actuator_id, int result, int modifier)
+{
+	if (actuator_id > 7) return -9999;
+
+	float acts[7];
+	float gfacts[7];
+
 	AngularPosition torque;
 	AngularPosition torqueGravityFree;
 
@@ -414,10 +621,9 @@ int get_torque_value(int actuator_id, int result)
 
 	for (int i = 0; i < devicesCount; i++)
 	{
-		cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << endl;
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
 
-		float acts[7];
-		float gfacts[7];
+
 		acts[0] = torque.Actuators.Actuator1;
 		acts[1] = torque.Actuators.Actuator2;
 		acts[2] = torque.Actuators.Actuator3;
@@ -439,21 +645,106 @@ int get_torque_value(int actuator_id, int result)
 
 		MyGetAngularForce(torque);
 		MyGetAngularForceGravityFree(torqueGravityFree);
-		cout << "*********************************" << endl;
-		cout << "Actuator 1   torque : " << acts[0] << " N*m" << "     without gravity : " << gfacts[0] << " N*m" << endl;
-		cout << "Actuator 2   torque : " << acts[1] << " N*m" << "     without gravity : " << gfacts[1] << " N*m" << endl;
-		cout << "Actuator 3   torque : " << acts[2] << " N*m" << "     without gravity : " << gfacts[2] << " N*m" << endl;
-		cout << "Actuator 4   torque : " << acts[3] << " N*m" << "     without gravity : " << gfacts[3] << " N*m" << endl;
-		cout << "Actuator 5   torque : " << acts[4] << " N*m" << "     without gravity : " << gfacts[4] << " N*m" << endl;
-		cout << "Actuator 6   torque : " << acts[5] << " N*m" << "     without gravity : " << gfacts[5] << " N*m" << endl;
-		cout << "Actuator 7   torque : " << acts[6] << " N*m" << "     without gravity : " << gfacts[6] << " N*m" << endl;
-		cout << "*********************************" << endl << endl << endl;
-		cout << torque.Actuators.Actuator1 << endl << endl << endl;
+		std::cout << "*********************************" << std::endl;
+		std::cout << "Actuator 1   torque : " << acts[0] << " N*m" << "     without gravity : " << gfacts[0] << " N*m" << std::endl;
+		std::cout << "Actuator 2   torque : " << acts[1] << " N*m" << "     without gravity : " << gfacts[1] << " N*m" << std::endl;
+		std::cout << "Actuator 3   torque : " << acts[2] << " N*m" << "     without gravity : " << gfacts[2] << " N*m" << std::endl;
+		std::cout << "Actuator 4   torque : " << acts[3] << " N*m" << "     without gravity : " << gfacts[3] << " N*m" << std::endl;
+		std::cout << "Actuator 5   torque : " << acts[4] << " N*m" << "     without gravity : " << gfacts[4] << " N*m" << std::endl;
+		std::cout << "Actuator 6   torque : " << acts[5] << " N*m" << "     without gravity : " << gfacts[5] << " N*m" << std::endl;
+		std::cout << "Actuator 7   torque : " << acts[6] << " N*m" << "     without gravity : " << gfacts[6] << " N*m" << std::endl;
+		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 	}
 
-	return 1;
+	if (modifier == 0)
+	{
+		return acts[actuator_id - 1];
+	} else if (modifier == 1)
+	{
+		return gfacts[actuator_id - 1];
+	} else  {
+		return -9999;
+	}
+	return -9999;
 }
 
+std::vector<float> get_torque_values(int result, int modifier)
+{
+
+	float acts[7];
+	float gfacts[7];
+
+	AngularPosition torque;
+	AngularPosition torqueGravityFree;
+
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
+
+
+		acts[0] = torque.Actuators.Actuator1;
+		acts[1] = torque.Actuators.Actuator2;
+		acts[2] = torque.Actuators.Actuator3;
+		acts[3] = torque.Actuators.Actuator4;
+		acts[4] = torque.Actuators.Actuator5;
+		acts[5] = torque.Actuators.Actuator6;
+		acts[6] = torque.Actuators.Actuator7;
+		
+		
+		gfacts[0] = torqueGravityFree.Actuators.Actuator1;
+		gfacts[1] = torqueGravityFree.Actuators.Actuator2;
+		gfacts[2] = torqueGravityFree.Actuators.Actuator3;
+		gfacts[3] = torqueGravityFree.Actuators.Actuator4;
+		gfacts[4] = torqueGravityFree.Actuators.Actuator5;
+		gfacts[5] = torqueGravityFree.Actuators.Actuator6;
+		gfacts[6] = torqueGravityFree.Actuators.Actuator7;
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+
+		MyGetAngularForce(torque);
+		MyGetAngularForceGravityFree(torqueGravityFree);
+		std::cout << "*********************************" << std::endl;
+		std::cout << "Actuator 1   torque : " << acts[0] << " N*m" << "     without gravity : " << gfacts[0] << " N*m" << std::endl;
+		std::cout << "Actuator 2   torque : " << acts[1] << " N*m" << "     without gravity : " << gfacts[1] << " N*m" << std::endl;
+		std::cout << "Actuator 3   torque : " << acts[2] << " N*m" << "     without gravity : " << gfacts[2] << " N*m" << std::endl;
+		std::cout << "Actuator 4   torque : " << acts[3] << " N*m" << "     without gravity : " << gfacts[3] << " N*m" << std::endl;
+		std::cout << "Actuator 5   torque : " << acts[4] << " N*m" << "     without gravity : " << gfacts[4] << " N*m" << std::endl;
+		std::cout << "Actuator 6   torque : " << acts[5] << " N*m" << "     without gravity : " << gfacts[5] << " N*m" << std::endl;
+		std::cout << "Actuator 7   torque : " << acts[6] << " N*m" << "     without gravity : " << gfacts[6] << " N*m" << std::endl;
+		std::cout << "*********************************" << std::endl << std::endl << std::endl;
+	}
+
+	std::vector<float> response;
+
+	if (modifier == 0)
+	{
+		response.push_back(acts[0]);
+		response.push_back(acts[1]);
+		response.push_back(acts[2]);
+		response.push_back(acts[3]);
+		response.push_back(acts[4]);
+		response.push_back(acts[5]);
+		response.push_back(acts[6]);
+
+	} else if (modifier == 1)
+	{
+		response.push_back(gfacts[0]);
+		response.push_back(gfacts[1]);
+		response.push_back(gfacts[2]);
+		response.push_back(gfacts[3]);
+		response.push_back(gfacts[4]);
+		response.push_back(gfacts[5]);
+		response.push_back(gfacts[6]);
+	} else  {
+		return response;
+	}
+
+	return response;
+}
 void sleep(int duration) {
 #ifdef __linux__ 
 	usleep(duration * 1000);
@@ -554,12 +845,12 @@ int InitializeAPIFunctions(){
 	|| (MyGetGeneralInformations == NULL)
 	|| (MyGetAngularForce == NULL) || (MyGetAngularForceGravityFree == NULL))
 	{
-		cout << "* * *  E R R O R   D U R I N G   I N I T I A L I Z A T I O N  * * *" << endl;
+		std::cout << "* * *  E R R O R   D U R I N G   I N I T I A L I Z A T I O N  * * *" << std::endl;
 		programResult = 0;
 	}
 	else
 	{
-		cout << "I N I T I A L I Z A T I O N   C O M P L E T E D" << endl << endl;
+		std::cout << "I N I T I A L I Z A T I O N   C O M P L E T E D" << std::endl << std::endl;
 		programResult = 1;
 
 	}
