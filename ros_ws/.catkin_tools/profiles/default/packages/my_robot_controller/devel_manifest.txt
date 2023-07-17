@@ -1,5 +1,0 @@
-my_robot_controller
-/home/yigit/surgical-assistant-robot/ros_ws/devel/.private/my_robot_controller/cmake.lock /home/yigit/surgical-assistant-robot/ros_ws/devel/./cmake.lock
-/home/yigit/surgical-assistant-robot/ros_ws/devel/.private/my_robot_controller/lib/pkgconfig/my_robot_controller.pc /home/yigit/surgical-assistant-robot/ros_ws/devel/lib/pkgconfig/my_robot_controller.pc
-/home/yigit/surgical-assistant-robot/ros_ws/devel/.private/my_robot_controller/share/my_robot_controller/cmake/my_robot_controllerConfig-version.cmake /home/yigit/surgical-assistant-robot/ros_ws/devel/share/my_robot_controller/cmake/my_robot_controllerConfig-version.cmake
-/home/yigit/surgical-assistant-robot/ros_ws/devel/.private/my_robot_controller/share/my_robot_controller/cmake/my_robot_controllerConfig.cmake /home/yigit/surgical-assistant-robot/ros_ws/devel/share/my_robot_controller/cmake/my_robot_controllerConfig.cmake

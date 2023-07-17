@@ -1,7 +1,0 @@
-<launch>
-
-	<node pkg="misa_robot_control" name="graphical_user_interface" type ="GraphicalUserInterface.py" output="screen"/>
-  
-	<node pkg="misa_robot_control" type="KinovaAPI" name="kinova_api" />
-
-</launch>

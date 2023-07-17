@@ -1,5 +1,0 @@
-<launch>
-  <include file="$(find misa_gazebo)/launch/misa_world.launch" />
-  <include file="$(find misa_control)/launch/misa_torque_control.launch" />
-  <node pkg="biopsy_robot" name="gravity_compensation" type="GravityCompensation.py" output="screen"/>
-</launch>

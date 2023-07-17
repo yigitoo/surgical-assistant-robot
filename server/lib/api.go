@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,7 +36,7 @@ func SetupApi() *gin.Engine {
 
 	InfoLogger.Println("Route / (POST [COMMAND_HANDLER] HTTP/1.1) has been setted!")
 
-	r.GET("/id/:motorid", func(ctx *gin.Context) {
+	/* r.GET("/id/:motorid", func(ctx *gin.Context) {
 		motor_id := ctx.Params.ByName("motorid")
 		motor_info, err := DenemeMotorID(motor_id)
 		if err != nil {
@@ -60,7 +59,7 @@ func SetupApi() *gin.Engine {
 			"status":     http.StatusOK,
 		})
 		InfoLogger.Printf("[/postcmd] [time:%s] %v", strconv.Itoa(int(time.Now().UnixMilli())), motor_info)
-	})
+	}) */
 
 	InfoLogger.Println("Route /id/:motorid (GET [COMMAND_HANDLER] HTTP/1.1) has been setted!")
 

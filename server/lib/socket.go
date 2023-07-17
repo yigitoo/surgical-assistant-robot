@@ -2,12 +2,10 @@ package lib
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	zmq "github.com/pebbe/zmq4"
-	"github.com/tidwall/gjson"
 )
 
 // Message represents a simple message struct
@@ -42,17 +40,6 @@ type CartesianInfo struct {
 	ThetaZ float64 `json:"thetaZ"`
 }
 
-type Response struct {
-	Reply string `json:"reply"`
-}
-
-/*
-Response:
-
-	{
-		"reply": "{raw_data_json #değişcek}"
-	}
-*/
 func GetMotorById(motor_id string) (Motor, error) {
 	var motor Motor
 	var err error
@@ -82,35 +69,6 @@ func GetMotorById(motor_id string) (Motor, error) {
 	LogError(err)
 
 	return motor, err
-}
-
-func DenemeMotorID(motor_id string) (string, error) {
-
-	var err error
-	var socket *zmq.Socket
-	socket, err = zmq.NewSocket(zmq.REQ)
-	if err != nil {
-		return "", err
-	}
-	defer socket.Close()
-	socket.Connect("tcp://localhost:5555")
-
-	cmd := Command{
-		Name:  "get_motor_by_id",
-		Value: motor_id,
-	}
-
-	request_payload := cmd.Name + ";" + cmd.Value
-
-	if _, err = socket.Send(request_payload, 0); err != nil {
-		DirectLogError(err)
-	}
-
-	reply, err := socket.Recv(0)
-	LogError(err)
-	fmt.Println(reply)
-	replyMessage := gjson.Get(reply, "reply")
-	return replyMessage.String(), nil
 }
 
 // SendCommand handles sending the message via ZeroMQ

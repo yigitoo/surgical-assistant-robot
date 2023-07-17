@@ -54,23 +54,18 @@ int communication_bridge(int result) {
         std::cout << "Received request: " << receivedMessage << std::endl;
 
         std::vector<std::string> request_payload = splitstr(receivedMessage,';');
-
+        std::string replyMessage;
 
         if (request_payload[0] == "get_motor_by_id" && stoi(request_payload[1]) <= 6) {
             int motor_id = stoi(request_payload[1]);
 
             // Send the reply back to the client
-            std::string replyMessage = "{\"reply\": \"motor_id " + std::to_string(motor_id) + "\"}";
-            zmq::message_t reply(replyMessage.size());
-            memcpy(reply.data(), replyMessage.data(), replyMessage.size());
-            socket.send(reply, zmq::send_flags::none);
-            std::cout << "Sent reply: " << replyMessage << std::endl;
         } else if (request_payload[0] == "get_current" && stoi(request_payload[1]) <= 6)
         {
 
         } else if (request_payload[0] == "get_temperature" && stoi(request_payload[1]) <= 6)
         {
-
+            
         } else if (request_payload[0] == "get_angular_info" && stoi(request_payload[1]) <= 6)
         {
             
@@ -102,6 +97,10 @@ int communication_bridge(int result) {
             std::cout << "Error: Requst is not sending clearly" << std::endl;
             std::cout << "Request payload: " << receivedMessage << std::endl;
         }
+        zmq::message_t reply(replyMessage.size());
+        memcpy(reply.data(), replyMessage.data(), replyMessage.size());
+        socket.send(reply, zmq::send_flags::none);
+        std::cout << "Sent reply: " << replyMessage << std::endl;
     }
 
     // The server should never reach this point, but for completeness, close the socket and context

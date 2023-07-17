@@ -1,4 +1,0 @@
-<launch>
-  <include file="$(find misa_gazebo)/launch/misa_world_pos.launch" />
-  <include file="$(find misa_control)/launch/misa_position_control.launch" />
-</launch>

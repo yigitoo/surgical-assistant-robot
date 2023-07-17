@@ -1,1 +1,0 @@
-[0mCMake Error: The source "/home/yigit/surgical-assistant-robot/ros_ws/src/kinova_ros/kinova_msgs/CMakeLists.txt" does not match the source "/home/yigit/surgical-assistant-robot/ros_ws/src/kinova-ros/kinova_msgs/CMakeLists.txt" used to generate cache.  Re-run cmake with a different source directory.[0m

@@ -1,5 +1,0 @@
-kinova-ros/kinova_control
-/home/yigit/surgical-assistant-robot/ros_ws/devel/.private/kinova_control/cmake.lock /home/yigit/surgical-assistant-robot/ros_ws/devel/./cmake.lock
-/home/yigit/surgical-assistant-robot/ros_ws/devel/.private/kinova_control/lib/pkgconfig/kinova_control.pc /home/yigit/surgical-assistant-robot/ros_ws/devel/lib/pkgconfig/kinova_control.pc
-/home/yigit/surgical-assistant-robot/ros_ws/devel/.private/kinova_control/share/kinova_control/cmake/kinova_controlConfig-version.cmake /home/yigit/surgical-assistant-robot/ros_ws/devel/share/kinova_control/cmake/kinova_controlConfig-version.cmake
-/home/yigit/surgical-assistant-robot/ros_ws/devel/.private/kinova_control/share/kinova_control/cmake/kinova_controlConfig.cmake /home/yigit/surgical-assistant-robot/ros_ws/devel/share/kinova_control/cmake/kinova_controlConfig.cmake
