@@ -46,6 +46,13 @@ type Response struct {
 	Reply string `json:"reply"`
 }
 
+/*
+Response:
+
+	{
+		"reply": "{raw_data_json #değişcek}"
+	}
+*/
 func GetMotorById(motor_id string) (Motor, error) {
 	var motor Motor
 	var err error

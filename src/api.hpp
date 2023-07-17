@@ -19,6 +19,41 @@
 
 using namespace std;
 
+//Function pointers to the functions we need
+// ADMITANCE
+int(*MyInitAPI)();
+int(*MyCloseAPI)();
+int(*MyStartForceControl)();
+int(*MyGetDevices)(KinovaDevice devices[MAX_KINOVA_DEVICE], int &result);
+int(*MySetActiveDevice)(KinovaDevice device);
+
+// ANGULAR_CONTROL
+int(*MySendBasicTrajectory)(TrajectoryPoint command);
+int(*MyMoveHome)();
+int(*MyInitFingers)();
+int(*MyGetAngularCommand)(AngularPosition &);
+
+// CARTESIAN_CONTROL
+int(*MyGetCartesianCommand)(CartesianPosition &);
+
+// ACTUATOR_CURRENT
+int(*MyGetAngularCurrent)(AngularPosition &Response);
+
+// ANGULAR_INFO
+int(*MyGetAngularPosition)(AngularPosition &);
+int (*MyGetActuatorAcceleration)(AngularAcceleration &Response);
+int (*MyGetAngularVelocity)(AngularPosition &Response);
+
+// CARTEISAN_INFO
+int(*MyGetCartesianPosition)(CartesianPosition &);
+
+// GET_TEMPERATURE
+int(*MyGetGeneralInformations)(GeneralInformations &Response);
+
+// GET_TORQUE_VALUE
+int(*MyGetAngularForce)(AngularPosition &Response);
+int(*MyGetAngularForceGravityFree)(AngularPosition &Response);
+
 //A handle to the API.
 #ifdef __linux__ 
 void * commandLayer_handle;
