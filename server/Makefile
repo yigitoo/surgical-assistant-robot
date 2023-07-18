@@ -1,5 +1,5 @@
 run:
-	go run cmd/main.go
+	go run .
 build:
 	go build
 tidy:

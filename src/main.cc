@@ -675,8 +675,46 @@ int communication_bridge(int result) {
 
         std::vector<std::string> request_payload = splitstr(receivedMessage,';');
         std::string replyMessage;
+		if (request_payload[0] == "get_all")
+		{
+			// CURRENT
+			std::vector<float> currents = get_actuator_currents(result);
+            replyMessage = float_vector_to_string(currents);
 
-		if (request_payload[0] == "set_angle")
+			replyMessage += ":";
+
+			// TEMPERATURE
+			std::vector<float> temperatures = get_temperatures(result);
+			replyMessage += float_vector_to_string(temperatures);
+
+			replyMessage += ":";
+
+
+			// ANGULAR_VEL INFO
+			std::string temp;
+			std::vector<std::vector<float>> angles = get_angular_infos(result);
+			temp = float_vector_to_string(angles[0]);
+			replyMessage += temp + ";";
+			temp += float_vector_to_string(angles[1]);
+			replyMessage += temp;
+
+			replyMessage += ":";
+
+			// CARTESIAN_VEL INFO
+			std::vector<CartesianInfo> cartesian = get_cartesian_infos(result);
+			replyMessage += float_vector_to_string(make_cartesian_float_vector(cartesian[0]));
+			replyMessage += ";";
+			replyMessage += float_vector_to_string(make_cartesian_float_vector(cartesian[1]));
+
+			replyMessage += ":";
+
+			// TORQUE VALUES
+			std::vector<std::vector<float>> torque_values = get_torque_values(result);
+			replyMessage = float_vector_to_string(torque_values[0]);
+			replyMessage += ";";
+			replyMessage += float_vector_to_string(torque_values[1]);
+   
+		} else if (request_payload[0] == "set_angle")
 		{
 			std::vector<float> angular_velocity = string_to_float_vector(request_payload[1]);
 			if (angular_velocity.size() != 6) throw std::runtime_error("YOU CANNOT SEND A VECTOR THAT HAVE NOT 6 LENGTH");  
@@ -690,7 +728,7 @@ int communication_bridge(int result) {
 
 			cartesian_control(cartesian_velocity, result, stoi(request_payload[2]));
 
-		} else if (request_payload[0] == "get_home")
+		} else if (request_payload[0] == "goto_home")
 		{
 			goto_home(result);
 			replyMessage = "The robot has been successfully positioned on the initial home.";

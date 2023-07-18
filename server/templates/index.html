@@ -1,114 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    table, th, td {
-      border: 1px solid black;
-    }
-    td, th, tr {
-      padding-left: 10px;
-      padding-right: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <style>
+        :root {
+            --text: #000;
+            --bg: #fff;
+        }
+
+        body {
+            font-family: monospace;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text: #000;
+                --bg: #414141;
+            }
+        }
+
+        * {
+            font-size: 40px;
+        }
+        .center {
+            border: 5px solid;
+            border-radius: 20px;
+            position: absolute;
+            padding: 500px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
-<h1 style="text-align: center;"><pre>
-Welcome to the Surgical Assistant Project Backend
-SERVICES.
-</pre></h1>
-</h1>
-<div style="margin-left: 10%; margin-top: 2.5rem;">
-<table class="table-auto text-center">
-  <thead>
-    <tr>
-      <th>Service Name</th>
-      <th>Method</th>
-      <th>Usage</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Dump All Infos</td>
-      <td>GET</td>
-      <td>/dumpInfos</td>
-    </tr>
-    <tr>
-      <td>Get Actuator's All Sensor Values By ID</td>
-      <td>GET</td>
-      <td>/id/&lt;int:id&gt;</td>
-    </tr>
-    <tr>
-      <td>Get Actuator Sensor Values By ID</td>
-      <td>GET</td>
-      <td>/id/&lt;int:id&gt;/&lt;sensor_name&gt;</td>
-    </tr>
-    <tr>
-      <td>Send a cmd to motors/actuators.</td>
-      <td>POST</td>
-      <td>/</td>
-    </tr>
-  </tbody>
-</table>
-<pre>
-_______________________________________________________________
-
-  P.S: 
-    sensor_name:
-      * current
-      * temperature
-      * angular_info
-      * cartesian_info
-      * torque_value
-    In post request:
-      cmd_name:
-        * admittance_mod
-        * set_cartesian (end-effector)
-        * set_angular  
-      cmd_val:
-        * certain data types like
-          1. motor_id
-          2. motor_action
-          3. wanted_infos like in &lt;sensor_name&gt;
-    POST requests need to be in json forat.
-
-JSON_MODEL:
-/*
-	{
-		angles: [0, 0, 0, 0, 0, 0]
-		cartesian: {
-			x: 0,
-			y: 0,
-			z: 0,
-			thetaX: 0,
-			thetaY: 0,
-			thetaZ: 0,
-		},
-		temperatures: [0, 0, 0, 0, 0, 0],
-		currents: [0, 0, 0, 0, 0, 0],
-		torques: [0, 0, 0, 0, 0, 0]
-	}
-
-,
-
-	[{
-		"id": 0,
-	    "angle": 0,
-	    "cartesian": {
-			"x": 0,
-	        "y": 0,
-	        "z": 0,
-			"thetaX": 0,
-			"thetaY": 0,
-	        "thetaZ": 0
-		},
-	    "temperature": 0,
-	    "current": 0,
-	    "torque": 0
-	}...]
-*/
-_______________________________________________________________
-</pre>
+<div class="container center">
+    <a href="/commander" class="bg-rounded">
+        <button style="cursor: pointer; padding-left: 150px; padding-right: 150px; color: #fff; background-color: firebrick; border:1px solid black; border-radius: 20px;">
+            Uzaktan Kumanda ile kontrol
+        </button>
+    </a>
+    <a href="/api" class="bg-rounded">
+        <button style="cursor: pointer; padding-left: 150px; padding-right: 150px; margin-top: 50px; color: #000; background-color: greenyellow; border:1px solid white; border-radius: 20px;">
+            API kullanarak nasıl bağlanacağınıza bakın
+        </button>
+    </a>
 </div>
 </body>
 </html>

@@ -16,52 +16,39 @@ func SetupApi() *gin.Engine {
 	InitializeLogger()
 	InfoLogger.Println("=== PROGRAM STARTED ===")
 
-	r := gin.Default()
-	r.SetTrustedProxies([]string{"0.0.0.0"})
-	r.Static("/public/", "./public")
-	r.LoadHTMLGlob("./templates/*.html")
+	router := gin.Default()
+	router.SetTrustedProxies([]string{"0.0.0.0"})
+	router.Static("/public", "./public")
+
+	router.LoadHTMLGlob("templates/*.html")
 
 	InfoLogger.Println("Routes are setting into application.")
 
-	r.GET("/", func(ctx *gin.Context) {
+	router.GET("/", func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "index.html", gin.H{
 			"content": "This is an index page...",
 		})
 		InfoLogger.Println("GET / HTTP/1. 200")
 	})
 
+	router.GET("/commander", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "commander.html", gin.H{
+			"content": "This is an index page...",
+		})
+		InfoLogger.Println("GET / HTTP/1. 200")
+	})
+
+	router.GET("/api", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "api.html", gin.H{
+			"content": "This is an api page...",
+		})
+		InfoLogger.Println("GET /api HTTP/1. 200")
+	})
+
 	InfoLogger.Println("Route / (GET HTTP/1.1) has been setted!")
 
-	r.POST("/", SendCommand)
-
+	router.POST("/", SendCommand)
 	InfoLogger.Println("Route / (POST [COMMAND_HANDLER] HTTP/1.1) has been setted!")
 
-	/* r.GET("/id/:motorid", func(ctx *gin.Context) {
-		motor_id := ctx.Params.ByName("motorid")
-		motor_info, err := DenemeMotorID(motor_id)
-		if err != nil {
-			LogError(err)
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"motor_id":   motor_id,
-				"motor_info": "",
-				"error":      err.Error(),
-				"success":    false,
-				"status":     http.StatusInternalServerError,
-			})
-
-			return
-		}
-
-		ctx.JSON(http.StatusOK, gin.H{
-			"motor_id":   motor_id,
-			"motor_info": motor_info,
-			"successful": true,
-			"status":     http.StatusOK,
-		})
-		InfoLogger.Printf("[/postcmd] [time:%s] %v", strconv.Itoa(int(time.Now().UnixMilli())), motor_info)
-	}) */
-
-	InfoLogger.Println("Route /id/:motorid (GET [COMMAND_HANDLER] HTTP/1.1) has been setted!")
-
-	return r
+	return router
 }
