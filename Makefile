@@ -5,7 +5,7 @@ BIN_NAME = robot_arm
 fn = main.cc
 FILE_NAME = $(fn)
 
-ARGS = -Iinclude/ -ldl -lzmq
+ARGS = -Iinclude/ -ldl -lzmq -w
 
 all: clean build run
 
