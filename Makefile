@@ -16,3 +16,9 @@ clean:
 	rm -rf $(BIN_FOLDER)
 run: 
 	$(BIN_FOLDER)/$(BIN_NAME)
+
+go:
+	cd server
+	go run cmd/main.go
+
+.PHONY: all build run clean go
