@@ -97,7 +97,7 @@ int admittance_control(int actuator_id, int result)
 	return 1;
 }
 
-std::vector<float> angular_control(int actuator_id, int result)
+std::vector<float> angular_control(std::vector<float> degrees, int result)
 {
 	AngularPosition currentCommand;
 
@@ -124,12 +124,12 @@ std::vector<float> angular_control(int actuator_id, int result)
 		//We specify that this point will be used an angular(joint by joint) velocity vector.
 		pointToSend.Position.Type = ANGULAR_VELOCITY;
 
-		pointToSend.Position.Actuators.Actuator1 = 0;
-		pointToSend.Position.Actuators.Actuator2 = 0;
-		pointToSend.Position.Actuators.Actuator3 = 0;
-		pointToSend.Position.Actuators.Actuator4 = 0;
-		pointToSend.Position.Actuators.Actuator5 = 0;
-		pointToSend.Position.Actuators.Actuator6 = 0; //joint 6 at 48 degrees per second.
+		pointToSend.Position.Actuators.Actuator1 = degrees[0];
+		pointToSend.Position.Actuators.Actuator2 = degrees[1];
+		pointToSend.Position.Actuators.Actuator3 = degrees[2];
+		pointToSend.Position.Actuators.Actuator4 = degrees[3];
+		pointToSend.Position.Actuators.Actuator5 = degrees[4];
+		pointToSend.Position.Actuators.Actuator6 = degrees[5]; //joint 6 at 48 degrees per second.
 
 		pointToSend.Position.Fingers.Finger1 = 0;
 		pointToSend.Position.Fingers.Finger2 = 0;
@@ -197,7 +197,7 @@ std::vector<float> angular_control(int actuator_id, int result)
 	return null;
 }
 
-CartesianInfo cartesian_control(int result)
+CartesianInfo cartesian_control(std::vector<float> cartesian_info , int result)
 {
     CartesianPosition currentCommand;
 
@@ -514,7 +514,7 @@ std::vector<std::vector<float>> get_angular_infos(int result)
 	return null;
 }
 
-std::vector<CartesianInfo> get_cartesian_info(int actuator_id, int result)
+std::vector<CartesianInfo> get_cartesian_infos(int result)
 {
 	CartesianPosition dataCommand;
 	CartesianPosition dataPosition;
@@ -693,11 +693,11 @@ float get_torque_value(int actuator_id, int result, int modifier)
 	return -9999;
 }
 
-std::vector<float> get_torque_values(int result, int modifier)
+std::vector<std::vector<float>> get_torque_values(int result)
 {
 
-	float acts[7];
-	float gfacts[7];
+	std::vector<float> acts;
+	std::vector<float> gfacts;
 
 	AngularPosition torque;
 	AngularPosition torqueGravityFree;
@@ -711,22 +711,23 @@ std::vector<float> get_torque_values(int result, int modifier)
 		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
 
 
-		acts[0] = torque.Actuators.Actuator1;
-		acts[1] = torque.Actuators.Actuator2;
-		acts[2] = torque.Actuators.Actuator3;
-		acts[3] = torque.Actuators.Actuator4;
-		acts[4] = torque.Actuators.Actuator5;
-		acts[5] = torque.Actuators.Actuator6;
-		acts[6] = torque.Actuators.Actuator7;
+		acts.push_back(torque.Actuators.Actuator1);
+		acts.push_back(torque.Actuators.Actuator2);
+		acts.push_back(torque.Actuators.Actuator3);
+		acts.push_back(torque.Actuators.Actuator4);
+		acts.push_back(torque.Actuators.Actuator5);
+		acts.push_back(torque.Actuators.Actuator6);
+		acts.push_back(torque.Actuators.Actuator7);
 		
 		
-		gfacts[0] = torqueGravityFree.Actuators.Actuator1;
-		gfacts[1] = torqueGravityFree.Actuators.Actuator2;
-		gfacts[2] = torqueGravityFree.Actuators.Actuator3;
-		gfacts[3] = torqueGravityFree.Actuators.Actuator4;
-		gfacts[4] = torqueGravityFree.Actuators.Actuator5;
-		gfacts[5] = torqueGravityFree.Actuators.Actuator6;
-		gfacts[6] = torqueGravityFree.Actuators.Actuator7;
+		gfacts.push_back(torqueGravityFree.Actuators.Actuator1);
+		gfacts.push_back(torqueGravityFree.Actuators.Actuator2);
+		gfacts.push_back(torqueGravityFree.Actuators.Actuator3);
+		gfacts.push_back(torqueGravityFree.Actuators.Actuator4);
+		gfacts.push_back(torqueGravityFree.Actuators.Actuator5);
+		gfacts.push_back(torqueGravityFree.Actuators.Actuator6);
+		gfacts.push_back(torqueGravityFree.Actuators.Actuator7);
+
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
 
@@ -743,31 +744,10 @@ std::vector<float> get_torque_values(int result, int modifier)
 		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 	}
 
-	std::vector<float> response;
+	std::vector<std::vector<float>> response;
 
-	if (modifier == 0)
-	{
-		response.push_back(acts[0]);
-		response.push_back(acts[1]);
-		response.push_back(acts[2]);
-		response.push_back(acts[3]);
-		response.push_back(acts[4]);
-		response.push_back(acts[5]);
-		response.push_back(acts[6]);
-
-	} else if (modifier == 1)
-	{
-		response.push_back(gfacts[0]);
-		response.push_back(gfacts[1]);
-		response.push_back(gfacts[2]);
-		response.push_back(gfacts[3]);
-		response.push_back(gfacts[4]);
-		response.push_back(gfacts[5]);
-		response.push_back(gfacts[6]);
-	} else  {
-		return response;
-	}
-
+	response.push_back(acts);
+	response.push_back(gfacts);
 	return response;
 }
 void sleep(int duration) {
@@ -888,6 +868,9 @@ int communication_bridge(int result);
 void sleep(int duration);
 std::vector<std::string> splitstr(std::string str, char seperator);
 int timestamp();
+std::string float_vector_to_string(std::vector<float> vector);
+std::vector<float> string_to_float_vector(std::string vector_string);
+std::vector<float> make_cartesian_float_vector(CartesianInfo cartesian_info);
 
 int main(int argc, char *argv[])
 {
@@ -896,7 +879,44 @@ int main(int argc, char *argv[])
 
     int result = (*MyInitAPI)();
     int programResult = communication_bridge(result);
+	result = (*MyCloseAPI)();
     return programResult;
+}
+
+
+std::string float_vector_to_string(std::vector<float> vector)
+{
+	std::string result;
+	for(int i = 0; i < vector.size() - 1; i++)
+	{
+		result += std::to_string(vector[i]) + ",";
+	}
+
+	result += std::to_string(vector[vector.size() - 1]);
+	return result;
+}
+
+std::vector<float> string_to_float_vector(std::string vector_string)
+{
+	std::vector<float> result;
+    std::vector<std::string> split_vector = splitstr(vector_string, ',');
+    for(int i = 0; i < split_vector.size(); i++)
+    {
+        result.push_back(std::stof(split_vector[i]));
+    }
+    return result;
+}
+
+std::vector<float> make_cartesian_float_vector(CartesianInfo cartesian_info)
+{
+	std::vector<float> result;
+	result.push_back(cartesian_info.X);
+	result.push_back(cartesian_info.Y);
+	result.push_back(cartesian_info.Z);
+	result.push_back(cartesian_info.ThetaX);
+	result.push_back(cartesian_info.ThetaY);
+	result.push_back(cartesian_info.ThetaZ);
+	return result;
 }
 
 int communication_bridge(int result) {
@@ -911,7 +931,8 @@ int communication_bridge(int result) {
     
     std::cout << "ZeroMQ reply server is running..." << std::endl;
 
-    while (true) {
+    while (1)
+	{
         // Wait for a request from a client
         zmq::message_t request;
         socket.recv(&request);
@@ -922,44 +943,47 @@ int communication_bridge(int result) {
         std::vector<std::string> request_payload = splitstr(receivedMessage,';');
         std::string replyMessage;
 
-        if (request_payload[0] == "get_motor_by_id" && stoi(request_payload[1]) <= 6) {
-            int motor_id = stoi(request_payload[1]);
-			replyMessage = "You motor_id: " + std::to_string(motor_id);
-            // Send the reply back to the client
-        } else if (request_payload[0] == "get_current" && stoi(request_payload[1]) <= 6)
+		if (request_payload[0] == "set_angles")
+		{
+			std::vector<float> angles = string_to_float_vector(request_payload[1]);
+			angular_control(angles, result);
+		} else if(request_payload[0] == "set_cartesian")
+		{
+			std::vector<float> cartesian = string_to_float_vector(request_payload[1]);
+			cartesian_control(cartesian, result);
+		} else if (request_payload[0] == "get_currents" && stoi(request_payload[1]) <= 6)
         {
-			replyMessage = "[0,0,0,0,0,0]";
-        } else if (request_payload[0] == "get_temperature" && stoi(request_payload[1]) <= 6)
+			std::vector<float> currents = get_actuator_currents(result);
+            replyMessage = float_vector_to_string(currents);
+        } else if (request_payload[0] == "get_temperatures" && stoi(request_payload[1]) <= 6)
         {
-            
-        } else if (request_payload[0] == "get_angular_info" && stoi(request_payload[1]) <= 6)
+			std::vector<float> temperatures = get_temperatures(result);
+			replyMessage = float_vector_to_string(temperatures);
+        } else if (request_payload[0] == "get_angular_infos" && stoi(request_payload[1]) <= 6)
         {
-            
-        } else if (request_payload[0] == "get_cartesian_info" && stoi(request_payload[1]) <= 6) 
-        {
+			std::string temp;
+			std::vector<std::vector<float>> angles = get_angular_infos(result);
+			
+			temp = float_vector_to_string(angles[0]);
+			replyMessage = temp + ";";
+			
+			temp = float_vector_to_string(angles[1]);
+			replyMessage += temp;
 
-        } else if (request_payload[0] == "get_torque_value" && stoi(request_payload[1]) <= 6) 
+        } else if (request_payload[0] == "get_cartesian_infos" && stoi(request_payload[1]) <= 6) 
         {
-
-        } else if(request_payload[0] == "get_temperatures") 
+			std::vector<CartesianInfo> cartesian = get_cartesian_infos(result);
+			replyMessage = float_vector_to_string(make_cartesian_float_vector(cartesian[0]));
+			replyMessage += ";";
+			replyMessage += float_vector_to_string(make_cartesian_float_vector(cartesian[1]));
+				
+        } else if (request_payload[0] == "get_torque_values" && stoi(request_payload[1]) <= 6) 
         {
-
-        } else if(request_payload[0] == "get_angular_infos") 
-        {
-
-        } else if(request_payload[0] == "get_cartesian_infos") 
-        {
-
-        } else if(request_payload[0] == "get_torque_values") 
-        {
-
-        } else if(request_payload[0] == "get_torque_values") 
-        {
-
-        } else if(request_payload[0] == "get_torque_values") 
-        {
-
-        }  else {
+			std::vector<std::vector<float>> torque_values = get_torque_values(result);
+			replyMessage = float_vector_to_string(torque_values[0]);
+			replyMessage += ";";
+			replyMessage += float_vector_to_string(torque_values[1]);
+        } else {
             std::cout << "Error: Requst is not sending clearly" << std::endl;
             std::cout << "Request payload: " << receivedMessage << std::endl;
         }
