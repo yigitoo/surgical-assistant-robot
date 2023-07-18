@@ -76,6 +76,22 @@ int(*MyGetGeneralInformations)(GeneralInformations &Response);
 int(*MyGetAngularForce)(AngularPosition &Response);
 int(*MyGetAngularForceGravityFree)(AngularPosition &Response);
 
+int goto_home(int result) {
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
+
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+		std::cout << "Send the robot to HOME position" << std::endl;
+		MyMoveHome();
+	}
+}
+
 int admittance_control(int actuator_id, int result)
 {
 	KinovaDevice list[MAX_KINOVA_DEVICE];
@@ -97,10 +113,9 @@ int admittance_control(int actuator_id, int result)
 	return 1;
 }
 
-std::vector<float> angular_control(std::vector<float> degrees, int result)
+void angular_control(std::vector<float> fv_angularVelocity, int result, int duration)
 {
 	AngularPosition currentCommand;
-
 	KinovaDevice list[MAX_KINOVA_DEVICE];
 
 	int devicesCount = MyGetDevices(list, result);
@@ -111,9 +126,6 @@ std::vector<float> angular_control(std::vector<float> degrees, int result)
 
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
-
-		std::cout << "Send the robot to HOME position" << std::endl;
-		MyMoveHome();
 
 		std::cout << "Initializing the motors." << std::endl;
 		MyInitFingers();
@@ -124,83 +136,29 @@ std::vector<float> angular_control(std::vector<float> degrees, int result)
 		//We specify that this point will be used an angular(joint by joint) velocity vector.
 		pointToSend.Position.Type = ANGULAR_VELOCITY;
 
-		pointToSend.Position.Actuators.Actuator1 = degrees[0];
-		pointToSend.Position.Actuators.Actuator2 = degrees[1];
-		pointToSend.Position.Actuators.Actuator3 = degrees[2];
-		pointToSend.Position.Actuators.Actuator4 = degrees[3];
-		pointToSend.Position.Actuators.Actuator5 = degrees[4];
-		pointToSend.Position.Actuators.Actuator6 = degrees[5];
+		pointToSend.Position.Actuators.Actuator1 = fv_angularVelocity[0];
+		pointToSend.Position.Actuators.Actuator2 = fv_angularVelocity[1];
+		pointToSend.Position.Actuators.Actuator3 = fv_angularVelocity[2];
+		pointToSend.Position.Actuators.Actuator4 = fv_angularVelocity[3];
+		pointToSend.Position.Actuators.Actuator5 = fv_angularVelocity[4];
+		pointToSend.Position.Actuators.Actuator6 = fv_angularVelocity[5];
 
 		pointToSend.Position.Fingers.Finger1 = 0;
 		pointToSend.Position.Fingers.Finger2 = 0;
 		pointToSend.Position.Fingers.Finger3 = 0;
 
-		for (int i = 0; i < 300; i++)
+		for (int i = 0; i < duration; i++)
 		{
 			//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
 			MySendBasicTrajectory(pointToSend);
 			sleep(5);
 		}
-
-
-		for (int i = 0; i < 300; i++)
-		{
-			//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
-			MySendBasicTrajectory(pointToSend);
-			sleep(5);
-		}
-
-		std::cout << "Send the robot to HOME position" << std::endl;
-		MyMoveHome();
-
-		//We specify that this point will be an angular(joint by joint) position.
-		pointToSend.Position.Type = ANGULAR_POSITION;
-
-		//We get the actual angular command of the robot.
-		MyGetAngularCommand(currentCommand);
-
-		pointToSend.Position.Actuators.Actuator1 = currentCommand.Actuators.Actuator1 + 3;
-		pointToSend.Position.Actuators.Actuator2 = currentCommand.Actuators.Actuator2 + 3;
-		pointToSend.Position.Actuators.Actuator3 = currentCommand.Actuators.Actuator3 + 3;
-		pointToSend.Position.Actuators.Actuator4 = currentCommand.Actuators.Actuator4 + 3;
-		pointToSend.Position.Actuators.Actuator5 = currentCommand.Actuators.Actuator5 + 3;
-		pointToSend.Position.Actuators.Actuator6 = currentCommand.Actuators.Actuator6 + 3;
-
-		std::cout << "*********************************" << std::endl;
-		std::cout << "Sending the first point to the robot." << std::endl;
-		MySendBasicTrajectory(pointToSend);
-
-		pointToSend.Position.Actuators.Actuator1 = currentCommand.Actuators.Actuator1 - 60;
-		std::cout << "Sending the second point to the robot." << std::endl;
-		MySendBasicTrajectory(pointToSend);
-
-		pointToSend.Position.Actuators.Actuator1 = currentCommand.Actuators.Actuator1;
-		std::cout << "Sending the third point to the robot." << std::endl;
-		MySendBasicTrajectory(pointToSend);
-
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
-
-		std::cout << std::endl << "WARNING: Your robot is now set to angular control. If you use the joystick, it will be a joint by joint movement." << std::endl;
-		
-		std::vector<float> angles;
-		angles.push_back(pointToSend.Position.Actuators.Actuator1);
-		angles.push_back(pointToSend.Position.Actuators.Actuator2);
-		angles.push_back(pointToSend.Position.Actuators.Actuator3);
-		angles.push_back(pointToSend.Position.Actuators.Actuator4);
-		angles.push_back(pointToSend.Position.Actuators.Actuator5);
-		angles.push_back(pointToSend.Position.Actuators.Actuator6);
-		angles.push_back(pointToSend.Position.Actuators.Actuator7);
-		return angles;
 	}
-
-	std::vector<float> null;
-	return null;
 }
 
-CartesianInfo cartesian_control(std::vector<float> cartesian_info , int result)
+void cartesian_control(std::vector<float> fv_cartesianVelocity, int result, int duration)
 {
     CartesianPosition currentCommand;
-
 	KinovaDevice list[MAX_KINOVA_DEVICE];
 
 	int devicesCount = MyGetDevices(list, result);
@@ -212,9 +170,6 @@ CartesianInfo cartesian_control(std::vector<float> cartesian_info , int result)
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
 
-		std::cout << "Send the robot to HOME position" << std::endl;
-		MyMoveHome();
-
 		std::cout << "Initializing the fingers" << std::endl;
 		MyInitFingers();
 
@@ -224,65 +179,24 @@ CartesianInfo cartesian_control(std::vector<float> cartesian_info , int result)
 		//We specify that this point will be used an angular(joint by joint) velocity vector.
 		pointToSend.Position.Type = CARTESIAN_VELOCITY;
 
-		pointToSend.Position.CartesianPosition.X = 0;
-		pointToSend.Position.CartesianPosition.Y = -0.15; //Move along Y axis at 20 cm per second
-		pointToSend.Position.CartesianPosition.Z = 0;
-		pointToSend.Position.CartesianPosition.ThetaX = 0;
-		pointToSend.Position.CartesianPosition.ThetaY = 0;
-		pointToSend.Position.CartesianPosition.ThetaZ = 0;
+		pointToSend.Position.CartesianPosition.X = fv_cartesianVelocity[0];
+		pointToSend.Position.CartesianPosition.Y = fv_cartesianVelocity[1];
+		pointToSend.Position.CartesianPosition.Z = fv_cartesianVelocity[2];
+		pointToSend.Position.CartesianPosition.ThetaX = fv_cartesianVelocity[3];
+		pointToSend.Position.CartesianPosition.ThetaY = fv_cartesianVelocity[4];
+		pointToSend.Position.CartesianPosition.ThetaZ = fv_cartesianVelocity[5];
 
 		pointToSend.Position.Fingers.Finger1 = 0;
 		pointToSend.Position.Fingers.Finger2 = 0;
 		pointToSend.Position.Fingers.Finger3 = 0;
 
-		for (int i = 0; i < 200; i++)
+		for (int i = 0; i < duration; i++)
 		{
 			//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
 			MySendBasicTrajectory(pointToSend);
-			sleep(5);	
+			sleep(5);
 		}
-
-		pointToSend.Position.CartesianPosition.Y = 0;
-		pointToSend.Position.CartesianPosition.Z = 0.1;
-
-		for (int i = 0; i < 200; i++)
-		{
-			//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
-			MySendBasicTrajectory(pointToSend);
-			sleep(5);	
-		}
-
-		std::cout << "Send the robot to HOME position" << std::endl;
-		MyMoveHome();
-
-		//We specify that this point will be an angular(joint by joint) position.
-		pointToSend.Position.Type = CARTESIAN_POSITION;
-
-		//We get the actual angular command of the robot.
-		MyGetCartesianCommand(currentCommand);
-
-		pointToSend.Position.CartesianPosition.X = currentCommand.Coordinates.X;
-		pointToSend.Position.CartesianPosition.Y = currentCommand.Coordinates.Y - 0.1f;
-		pointToSend.Position.CartesianPosition.Z = currentCommand.Coordinates.Z;
-		pointToSend.Position.CartesianPosition.ThetaX = currentCommand.Coordinates.ThetaX;
-		pointToSend.Position.CartesianPosition.ThetaY = currentCommand.Coordinates.ThetaY;
-		pointToSend.Position.CartesianPosition.ThetaZ = currentCommand.Coordinates.ThetaZ;
-
-		std::cout << "*********************************" << std::endl;
-		std::cout << "Sending the first point to the robot." << std::endl;
-		MySendBasicTrajectory(pointToSend);
-
-		pointToSend.Position.CartesianPosition.Z = currentCommand.Coordinates.Z + 0.1f;
-		std::cout << "Sending the second point to the robot." << std::endl;
-		MySendBasicTrajectory(pointToSend);
-
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
-
-		return pointToSend.Position.CartesianPosition;
 	}
-
-	CartesianInfo null;
-	return null;
 }
 
 float get_actuator_current(int actuator_id, int result)
@@ -302,15 +216,6 @@ float get_actuator_current(int actuator_id, int result)
 
 		MyGetAngularCurrent(current);
 
-		std::cout << "*********************************" << std::endl;
-		std::cout << "Actuator 1   current : " << current.Actuators.Actuator1 << " A" << std::endl;
-		std::cout << "Actuator 2   current : " << current.Actuators.Actuator2 << " A" << std::endl;
-		std::cout << "Actuator 3   current : " << current.Actuators.Actuator3 << " A" << std::endl;
-		std::cout << "Actuator 4   current : " << current.Actuators.Actuator4 << " A" << std::endl;
-		std::cout << "Actuator 5   current : " << current.Actuators.Actuator5 << " A" << std::endl;
-		std::cout << "Actuator 6   current : " << current.Actuators.Actuator6 << " A" << std::endl;
-		std::cout << "Actuator 7   current : " << current.Actuators.Actuator7 << " A" << std::endl;
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 	}
 	switch(actuator_id) {
 		case 1:
@@ -357,15 +262,6 @@ std::vector<float> get_actuator_currents(int result)
 
 		MyGetAngularCurrent(current);
 
-		std::cout << "*********************************" << std::endl;
-		std::cout << "Actuator 1   current : " << current.Actuators.Actuator1 << " A" << std::endl;
-		std::cout << "Actuator 2   current : " << current.Actuators.Actuator2 << " A" << std::endl;
-		std::cout << "Actuator 3   current : " << current.Actuators.Actuator3 << " A" << std::endl;
-		std::cout << "Actuator 4   current : " << current.Actuators.Actuator4 << " A" << std::endl;
-		std::cout << "Actuator 5   current : " << current.Actuators.Actuator5 << " A" << std::endl;
-		std::cout << "Actuator 6   current : " << current.Actuators.Actuator6 << " A" << std::endl;
-		std::cout << "Actuator 7   current : " << current.Actuators.Actuator7 << " A" << std::endl;
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 	}
 
 	std::vector<float> currents;
@@ -398,19 +294,6 @@ std::vector<float> get_angular_info(int actuator_id, int result)
 		(*MyGetAngularCommand)(dataCommand);
 		(*MyGetAngularPosition)(dataPosition);
 
-		std::cout << "*********************************" << std::endl;
-		std::cout << "Actuator 1   command : " << dataCommand.Actuators.Actuator1 << " deg" << "     Position : " << dataPosition.Actuators.Actuator1 << " deg" << std::endl;
-		std::cout << "Actuator 2   command : " << dataCommand.Actuators.Actuator2 << " deg" << "     Position : " << dataPosition.Actuators.Actuator2 << " deg" << std::endl;
-		std::cout << "Actuator 3   command : " << dataCommand.Actuators.Actuator3 << " deg" << "     Position : " << dataPosition.Actuators.Actuator3 << " deg" << std::endl;
-		std::cout << "Actuator 4   command : " << dataCommand.Actuators.Actuator4 << " deg" << "     Position : " << dataPosition.Actuators.Actuator4 << " deg" << std::endl;
-		std::cout << "Actuator 5   command : " << dataCommand.Actuators.Actuator5 << " deg" << "     Position : " << dataPosition.Actuators.Actuator5 << " deg" << std::endl;
-		std::cout << "Actuator 6   command : " << dataCommand.Actuators.Actuator6 << " deg" << "     Position : " << dataPosition.Actuators.Actuator6 << " deg" << std::endl;
-		std::cout << "Actuator 7   command : " << dataCommand.Actuators.Actuator7 << " deg" << "     Position : " << dataPosition.Actuators.Actuator7 << " deg" << std::endl << std::endl;
-
-		std::cout << "  Finger 1   command: " << dataCommand.Fingers.Finger1 << "     Position : " << dataPosition.Fingers.Finger1 << std::endl;
-		std::cout << "  Finger 2   command: " << dataCommand.Fingers.Finger2 << "     Position : " << dataPosition.Fingers.Finger2 << std::endl;
-		std::cout << "  Finger 3   command: " << dataCommand.Fingers.Finger3 << "     Position : " << dataPosition.Fingers.Finger3 << std::endl;
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 	}
 
 	std::vector<float> response;
@@ -465,27 +348,11 @@ std::vector<std::vector<float>> get_angular_infos(int result)
 
 	for (int i = 0; i < devicesCount; i++)
 	{
-		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
-
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
 
 		(*MyGetAngularCommand)(dataCommand);
 		(*MyGetAngularPosition)(dataPosition);
-
-		std::cout << "*********************************" << std::endl;
-		std::cout << "Actuator 1   command : " << dataCommand.Actuators.Actuator1 << " deg" << "     Position : " << dataPosition.Actuators.Actuator1 << " deg" << std::endl;
-		std::cout << "Actuator 2   command : " << dataCommand.Actuators.Actuator2 << " deg" << "     Position : " << dataPosition.Actuators.Actuator2 << " deg" << std::endl;
-		std::cout << "Actuator 3   command : " << dataCommand.Actuators.Actuator3 << " deg" << "     Position : " << dataPosition.Actuators.Actuator3 << " deg" << std::endl;
-		std::cout << "Actuator 4   command : " << dataCommand.Actuators.Actuator4 << " deg" << "     Position : " << dataPosition.Actuators.Actuator4 << " deg" << std::endl;
-		std::cout << "Actuator 5   command : " << dataCommand.Actuators.Actuator5 << " deg" << "     Position : " << dataPosition.Actuators.Actuator5 << " deg" << std::endl;
-		std::cout << "Actuator 6   command : " << dataCommand.Actuators.Actuator6 << " deg" << "     Position : " << dataPosition.Actuators.Actuator6 << " deg" << std::endl;
-		std::cout << "Actuator 7   command : " << dataCommand.Actuators.Actuator7 << " deg" << "     Position : " << dataPosition.Actuators.Actuator7 << " deg" << std::endl << std::endl;
-
-		std::cout << "  Finger 1   command: " << dataCommand.Fingers.Finger1 << "     Position : " << dataPosition.Fingers.Finger1 << std::endl;
-		std::cout << "  Finger 2   command: " << dataCommand.Fingers.Finger2 << "     Position : " << dataPosition.Fingers.Finger2 << std::endl;
-		std::cout << "  Finger 3   command: " << dataCommand.Fingers.Finger3 << "     Position : " << dataPosition.Fingers.Finger3 << std::endl;
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 
 		std::vector<std::vector<float>> angular_infos;
 		std::vector<float> dataCmd;
@@ -752,7 +619,7 @@ std::vector<std::vector<float>> get_torque_values(int result)
 }
 void sleep(int duration) {
 #ifdef __linux__ 
-	usleep(duration * 1000);
+	usleep(duration);
 #elif _WIN32
 	Sleep(duration);	
 #endif
@@ -878,6 +745,12 @@ int main(int argc, char *argv[])
     if (!is_initialized) return EXIT_FAILURE;
 
     int result = (*MyInitAPI)();
+	if (result == ERROR_NO_DEVICE_FOUND)
+	{
+		std::cout << "DEVICE NOT FOUND ON USB SOCKET" << std::endl;
+		return EXIT_FAILURE;
+	}
+	
     int programResult = communication_bridge(result);
 	result = (*MyCloseAPI)();
     return programResult;
@@ -943,23 +816,29 @@ int communication_bridge(int result) {
         std::vector<std::string> request_payload = splitstr(receivedMessage,';');
         std::string replyMessage;
 
-		if (request_payload[0] == "set_angles")
+		if (request_payload[0] == "set_angle")
 		{
-			std::vector<float> angles = string_to_float_vector(request_payload[1]);
-			angular_control(angles, result);
+			std::vector<float> angular_velocity = string_to_float_vector(request_payload[1]);
+			if (angular_velocity.size() != 6) throw std::runtime_error("YOU CANNOT SEND A VECTOR THAT HAVE NOT 6 LENGTH");  
+
+			angular_control(angular_velocity, result, stoi(request_payload[2]));
+
 		} else if(request_payload[0] == "set_cartesian")
 		{
-			std::vector<float> cartesian = string_to_float_vector(request_payload[1]);
-			cartesian_control(cartesian, result);
-		} else if (request_payload[0] == "get_currents" && stoi(request_payload[1]) <= 6)
+			std::vector<float> cartesian_velocity = string_to_float_vector(request_payload[1]);
+			if (cartesian_velocity.size() != 6) throw std::runtime_error("YOU CANNOT SEND A VECTOR THAT HAVE NOT 6 LENGTH");  
+
+			cartesian_control(cartesian_velocity, result, stoi(request_payload[2]));
+
+		} else if (request_payload[0] == "get_current")
         {
 			std::vector<float> currents = get_actuator_currents(result);
             replyMessage = float_vector_to_string(currents);
-        } else if (request_payload[0] == "get_temperatures" && stoi(request_payload[1]) <= 6)
+        } else if (request_payload[0] == "get_temperature")
         {
 			std::vector<float> temperatures = get_temperatures(result);
 			replyMessage = float_vector_to_string(temperatures);
-        } else if (request_payload[0] == "get_angular_infos" && stoi(request_payload[1]) <= 6)
+        } else if (request_payload[0] == "get_angular_info")
         {
 			std::string temp;
 			std::vector<std::vector<float>> angles = get_angular_infos(result);
@@ -970,14 +849,14 @@ int communication_bridge(int result) {
 			temp = float_vector_to_string(angles[1]);
 			replyMessage += temp;
 
-        } else if (request_payload[0] == "get_cartesian_infos" && stoi(request_payload[1]) <= 6) 
+        } else if (request_payload[0] == "get_cartesian_info") 
         {
 			std::vector<CartesianInfo> cartesian = get_cartesian_infos(result);
 			replyMessage = float_vector_to_string(make_cartesian_float_vector(cartesian[0]));
 			replyMessage += ";";
 			replyMessage += float_vector_to_string(make_cartesian_float_vector(cartesian[1]));
 				
-        } else if (request_payload[0] == "get_torque_values" && stoi(request_payload[1]) <= 6) 
+        } else if (request_payload[0] == "get_torque_value") 
         {
 			std::vector<std::vector<float>> torque_values = get_torque_values(result);
 			replyMessage = float_vector_to_string(torque_values[0]);
@@ -986,6 +865,7 @@ int communication_bridge(int result) {
         } else {
             std::cout << "Error: Requst is not sending clearly" << std::endl;
             std::cout << "Request payload: " << receivedMessage << std::endl;
+			continue;
         }
         zmq::message_t reply(replyMessage.size());
         memcpy(reply.data(), replyMessage.data(), replyMessage.size());
