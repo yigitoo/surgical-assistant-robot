@@ -129,7 +129,7 @@ std::vector<float> angular_control(std::vector<float> degrees, int result)
 		pointToSend.Position.Actuators.Actuator3 = degrees[2];
 		pointToSend.Position.Actuators.Actuator4 = degrees[3];
 		pointToSend.Position.Actuators.Actuator5 = degrees[4];
-		pointToSend.Position.Actuators.Actuator6 = degrees[5]; //joint 6 at 48 degrees per second.
+		pointToSend.Position.Actuators.Actuator6 = degrees[5];
 
 		pointToSend.Position.Fingers.Finger1 = 0;
 		pointToSend.Position.Fingers.Finger2 = 0;
