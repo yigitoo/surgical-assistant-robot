@@ -34,14 +34,12 @@
 #include "CommandLayer.h"
 #include <conio.h>
 #endif
-
+// KINOVA K-75+ & K-58 ACTUATORS API functions ____ SECTION 1 OF CODE
 #ifdef __linux__ 
 void * commandLayer_handle;
 #elif _WIN32
 HINSTANCE commandLayer_handle;
 #endif
-
-
 
 //Function pointers to the functions we need
 // ADMITANCE
@@ -884,12 +882,12 @@ int InitializeAPIFunctions(){
     return programResult;
 }
 
+// ZEROMQ API functions ____ SECTION 2 OF CODE
 
 int communication_bridge(int result);
 void sleep(int duration);
 std::vector<std::string> splitstr(std::string str, char seperator);
 int timestamp();
-int main(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
 {
@@ -926,11 +924,11 @@ int communication_bridge(int result) {
 
         if (request_payload[0] == "get_motor_by_id" && stoi(request_payload[1]) <= 6) {
             int motor_id = stoi(request_payload[1]);
-
+			replyMessage = "You motor_id: " + std::to_string(motor_id);
             // Send the reply back to the client
         } else if (request_payload[0] == "get_current" && stoi(request_payload[1]) <= 6)
         {
-
+			replyMessage = "[0,0,0,0,0,0]";
         } else if (request_payload[0] == "get_temperature" && stoi(request_payload[1]) <= 6)
         {
             
