@@ -92,7 +92,7 @@ int goto_home(int result) {
 	}
 }
 
-int admittance_control(int actuator_id, int result)
+int admittance_control(int result)
 {
 	KinovaDevice list[MAX_KINOVA_DEVICE];
 
@@ -199,52 +199,6 @@ void cartesian_control(std::vector<float> fv_cartesianVelocity, int result, int 
 	}
 }
 
-float get_actuator_current(int actuator_id, int result)
-{
-	AngularPosition current;
-
-	KinovaDevice list[MAX_KINOVA_DEVICE];
-
-	int devicesCount = MyGetDevices(list, result);
-
-	for (int i = 0; i < devicesCount; i++)
-	{
-		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
-
-		//Setting the current device as the active device.
-		MySetActiveDevice(list[i]);
-
-		MyGetAngularCurrent(current);
-
-	}
-	switch(actuator_id) {
-		case 1:
-            return current.Actuators.Actuator1;
-            break;
-        case 2:
-            return current.Actuators.Actuator2;
-            break;
-        case 3:
-            return current.Actuators.Actuator3;
-            break;
-        case 4:
-            return current.Actuators.Actuator4;
-            break;
-        case 5:
-            return current.Actuators.Actuator5;
-            break;
-        case 6:
-            return current.Actuators.Actuator6;
-            break;
-        case 7:
-            return current.Actuators.Actuator7;
-            break;
-        default:
-            return -9999;
-            break;
-	}
-}
-
 std::vector<float> get_actuator_currents(int result)
 {
 	AngularPosition current;
@@ -273,68 +227,6 @@ std::vector<float> get_actuator_currents(int result)
 	currents.push_back(current.Actuators.Actuator6);
 	currents.push_back(current.Actuators.Actuator7);
 	return currents;
-}
-
-std::vector<float> get_angular_info(int actuator_id, int result)
-{
-	AngularPosition dataCommand;
-	AngularPosition dataPosition;
-
-	KinovaDevice list[MAX_KINOVA_DEVICE];
-
-	int devicesCount = MyGetDevices(list, result);
-
-	for (int i = 0; i < devicesCount; i++)
-	{
-		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
-
-		//Setting the current device as the active device.
-		MySetActiveDevice(list[i]);
-
-		(*MyGetAngularCommand)(dataCommand);
-		(*MyGetAngularPosition)(dataPosition);
-
-	}
-
-	std::vector<float> response;
-
-	switch (actuator_id)
-	{
-		case 1:
-			response.push_back(dataCommand.Actuators.Actuator1);
-			response.push_back(dataPosition.Actuators.Actuator1);
-			break;
-		case 2:
-			response.push_back(dataCommand.Actuators.Actuator2);
-			response.push_back(dataPosition.Actuators.Actuator2);
-			break;
-		case 3:
-			response.push_back(dataCommand.Actuators.Actuator3);
-			response.push_back(dataPosition.Actuators.Actuator3);
-			break;
-		case 4:
-			response.push_back(dataCommand.Actuators.Actuator4);
-			response.push_back(dataPosition.Actuators.Actuator4);
-			break;
-		case 5:
-			response.push_back(dataCommand.Actuators.Actuator5);
-			response.push_back(dataPosition.Actuators.Actuator5);
-			break;
-		case 6:
-			response.push_back(dataCommand.Actuators.Actuator6);
-			response.push_back(dataPosition.Actuators.Actuator6);
-			break;
-		case 7:
-			response.push_back(dataCommand.Actuators.Actuator2);
-			response.push_back(dataPosition.Actuators.Actuator2);
-			break;
-		default:
-			response.push_back(-9999);
-			response.push_back(-9999);
-			break;
-	}
-
-	return response;
 }
 
 std::vector<std::vector<float>> get_angular_infos(int result)
@@ -424,38 +316,6 @@ std::vector<CartesianInfo> get_cartesian_infos(int result)
 	return null;
 }
 
-float get_temperature(int actuator_id, int result)
-{
-	if (actuator_id > 7) return -9999;
-
-	GeneralInformations data;
-
-	KinovaDevice list[MAX_KINOVA_DEVICE];
-
-	int devicesCount = MyGetDevices(list, result);
-
-	for (int i = 0; i < devicesCount; i++)
-	{
-		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
-
-		//Setting the current device as the active device.
-		MySetActiveDevice(list[i]);
-
-		MyGetGeneralInformations(data);
-
-		std::cout << "*********************************" << std::endl;
-		std::cout << "Actuator 1 temperature : " << data.ActuatorsTemperatures[0] << " °C" << std::endl;
-		std::cout << "Actuator 2 temperature : " << data.ActuatorsTemperatures[1] << " °C" << std::endl;
-		std::cout << "Actuator 3 temperature : " << data.ActuatorsTemperatures[2] << " °C" << std::endl;
-		std::cout << "Actuator 4 temperature : " << data.ActuatorsTemperatures[3] << " °C" << std::endl;
-		std::cout << "Actuator 5 temperature : " << data.ActuatorsTemperatures[4] << " °C" << std::endl;
-		std::cout << "Actuator 6 temperature : " << data.ActuatorsTemperatures[5] << " °C" << std::endl;
-		std::cout << "Actuator 7 temperature : " << data.ActuatorsTemperatures[6] << " °C" << std::endl;
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
-	}
-
-	return data.ActuatorsTemperatures[actuator_id - 1];
-}
 
 std::vector<float> get_temperatures(int result)
 {
@@ -830,6 +690,10 @@ int communication_bridge(int result) {
 
 			cartesian_control(cartesian_velocity, result, stoi(request_payload[2]));
 
+		} else if (request_payload[0] == "get_home")
+		{
+			goto_home(result);
+			replyMessage = "The robot has been successfully positioned on the initial home.";
 		} else if (request_payload[0] == "get_current")
         {
 			std::vector<float> currents = get_actuator_currents(result);
