@@ -186,6 +186,6 @@ def start_gui():
 
 if __name__ == "__main__":    
     
-    window = webview.create_window('Webview', app)
+    window = webview.create_window('SURGICAL ASSISTANT ROBOT GUI', app)
     webview.start()
     start_gui()

@@ -294,18 +294,6 @@ std::vector<CartesianInfo> get_cartesian_infos(int result)
 		(*MyGetCartesianCommand)(dataCommand);
 		(*MyGetCartesianPosition)(dataPosition);
 
-		std::cout << "*********************************" << std::endl;
-		std::cout << "X   command : " << dataCommand.Coordinates.X << " m" << "     Position : " << dataPosition.Coordinates.X << " m" << std::endl;
-		std::cout << "Y   command : " << dataCommand.Coordinates.Y << " m" << "     Position : " << dataPosition.Coordinates.Y << " m" << std::endl;
-		std::cout << "Z   command : " << dataCommand.Coordinates.Z << " m" << "     Position : " << dataPosition.Coordinates.Z << " m" << std::endl;
-		std::cout << "Theta X   command : " << dataCommand.Coordinates.ThetaX << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaX << " Rad" << std::endl;
-		std::cout << "Theta Y   command : " << dataCommand.Coordinates.ThetaY << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaY << " Rad" << std::endl;
-		std::cout << "Theta Z   command : " << dataCommand.Coordinates.ThetaZ << " Rad" << "     Position : " << dataPosition.Coordinates.ThetaZ << " Rad" << std::endl << std::endl;
-
-		std::cout << "  Finger 1   command: " << dataCommand.Fingers.Finger1 << "     Position : " << dataPosition.Fingers.Finger1 << std::endl;
-		std::cout << "  Finger 2   command: " << dataCommand.Fingers.Finger2 << "     Position : " << dataPosition.Fingers.Finger2 << std::endl;
-		std::cout << "  Finger 3   command: " << dataCommand.Fingers.Finger3 << "     Position : " << dataPosition.Fingers.Finger3 << std::endl;
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 		
 		std::vector<CartesianInfo> response;
 		response.push_back(dataCommand.Coordinates);
@@ -335,15 +323,6 @@ std::vector<float> get_temperatures(int result)
 
 		MyGetGeneralInformations(data);
 
-		std::cout << "*********************************" << std::endl;
-		std::cout << "Actuator 1 temperature : " << data.ActuatorsTemperatures[0] << " °C" << std::endl;
-		std::cout << "Actuator 2 temperature : " << data.ActuatorsTemperatures[1] << " °C" << std::endl;
-		std::cout << "Actuator 3 temperature : " << data.ActuatorsTemperatures[2] << " °C" << std::endl;
-		std::cout << "Actuator 4 temperature : " << data.ActuatorsTemperatures[3] << " °C" << std::endl;
-		std::cout << "Actuator 5 temperature : " << data.ActuatorsTemperatures[4] << " °C" << std::endl;
-		std::cout << "Actuator 6 temperature : " << data.ActuatorsTemperatures[5] << " °C" << std::endl;
-		std::cout << "Actuator 7 temperature : " << data.ActuatorsTemperatures[6] << " °C" << std::endl;
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
 	}
 
 	std::vector<float> response;
@@ -397,15 +376,7 @@ float get_torque_value(int actuator_id, int result, int modifier)
 
 		MyGetAngularForce(torque);
 		MyGetAngularForceGravityFree(torqueGravityFree);
-		std::cout << "*********************************" << std::endl;
-		std::cout << "Actuator 1   torque : " << acts[0] << " N*m" << "     without gravity : " << gfacts[0] << " N*m" << std::endl;
-		std::cout << "Actuator 2   torque : " << acts[1] << " N*m" << "     without gravity : " << gfacts[1] << " N*m" << std::endl;
-		std::cout << "Actuator 3   torque : " << acts[2] << " N*m" << "     without gravity : " << gfacts[2] << " N*m" << std::endl;
-		std::cout << "Actuator 4   torque : " << acts[3] << " N*m" << "     without gravity : " << gfacts[3] << " N*m" << std::endl;
-		std::cout << "Actuator 5   torque : " << acts[4] << " N*m" << "     without gravity : " << gfacts[4] << " N*m" << std::endl;
-		std::cout << "Actuator 6   torque : " << acts[5] << " N*m" << "     without gravity : " << gfacts[5] << " N*m" << std::endl;
-		std::cout << "Actuator 7   torque : " << acts[6] << " N*m" << "     without gravity : " << gfacts[6] << " N*m" << std::endl;
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
+
 	}
 
 	if (modifier == 0)
@@ -460,15 +431,7 @@ std::vector<std::vector<float>> get_torque_values(int result)
 
 		MyGetAngularForce(torque);
 		MyGetAngularForceGravityFree(torqueGravityFree);
-		std::cout << "*********************************" << std::endl;
-		std::cout << "Actuator 1   torque : " << acts[0] << " N*m" << "     without gravity : " << gfacts[0] << " N*m" << std::endl;
-		std::cout << "Actuator 2   torque : " << acts[1] << " N*m" << "     without gravity : " << gfacts[1] << " N*m" << std::endl;
-		std::cout << "Actuator 3   torque : " << acts[2] << " N*m" << "     without gravity : " << gfacts[2] << " N*m" << std::endl;
-		std::cout << "Actuator 4   torque : " << acts[3] << " N*m" << "     without gravity : " << gfacts[3] << " N*m" << std::endl;
-		std::cout << "Actuator 5   torque : " << acts[4] << " N*m" << "     without gravity : " << gfacts[4] << " N*m" << std::endl;
-		std::cout << "Actuator 6   torque : " << acts[5] << " N*m" << "     without gravity : " << gfacts[5] << " N*m" << std::endl;
-		std::cout << "Actuator 7   torque : " << acts[6] << " N*m" << "     without gravity : " << gfacts[6] << " N*m" << std::endl;
-		std::cout << "*********************************" << std::endl << std::endl << std::endl;
+		
 	}
 
 	std::vector<std::vector<float>> response;
