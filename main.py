@@ -187,7 +187,7 @@ def title_changer(window):
     for i in range(1, 100):
         window.set_title('SURGICAL ASSISTANT ROBOT GUI')
         sleep(3)
-        window.set_title('Written by bengi')
+        window.set_title('Written by Surgical Assistanr Robot Interns\'2023')
         sleep(3)
 
 

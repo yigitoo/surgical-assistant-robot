@@ -3,8 +3,6 @@
 #include <vector>
 #include <chrono>
 
-#include <zmq.hpp>
-
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
@@ -34,6 +32,9 @@
 #include "CommandLayer.h"
 #include <conio.h>
 #endif
+
+#include <zmq.hpp>
+
 // KINOVA K-75+ & K-58 ACTUATORS API functions ____ SECTION 1 OF CODE
 #ifdef __linux__ 
 void * commandLayer_handle;
