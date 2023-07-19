@@ -72,10 +72,12 @@
 
         <div class="d-flex flex-row mt-4 justify-content-between px-2">
             <div class="d-flex flex-column align-items-center">
-                <div class="d-flex flex-row justify-content-center align-items-center">
-                    <i class="fas fa-home p-3 home-icon"></i>
-                </div>
-                <span>Home</span>
+                <a href='/'>
+                    <div class="d-flex flex-row justify-content-center align-items-center">
+                        <i class="fas fa-home p-3 home-icon"></i>
+                    </div>
+                    <span>Home</span>
+                </a>
             </div>
             <div class="d-flex flex-column rounded-bg py-3 px-4 justify-content-center align-items-center">
                 <a href='#' onclick="inc_height()">
@@ -96,17 +98,20 @@
                 </a>
             </div>
         </div>
-        <br class="my-4">
-        <div class="mt-5 pt-4 position-relative d-flex flex-row justify-content-center align-items-center">
-            <div class="circle ok-inner position-absolute">
-                <span></span>
-            </div>
-            <div class="circle ok-outer position-absolute"></div>
-            <i class="fas fa-caret-right position-absolute control-icon right"></i>
-            <i class="fas fa-caret-right position-absolute control-icon bottom"></i>
-            <i class="fas fa-caret-right position-absolute control-icon left"></i>
-            <i class="fas fa-caret-right position-absolute control-icon top"></i>
-        </div>
+         <div class="center-btns px-12 mx-12" style="position: relative; left: 15%; top:10%; ">
+                <button class="btn btn-up">
+                    <img src="https://www.yudiz.com/codepen/smart-remote-control/arrow-up.svg" alt="arrow">
+                </button>
+                <button class="btn btn-right">
+                    <img src="https://www.yudiz.com/codepen/smart-remote-control/arrow-right.svg" alt="arrow">
+                </button>
+                <button class="btn btn-down">
+                    <img src="https://www.yudiz.com/codepen/smart-remote-control/arrow-down.svg" alt="arrow">
+                </button>
+                <button class="btn btn-left">
+                    <img src="https://www.yudiz.com/codepen/smart-remote-control/arrow-left.svg" alt="arrow">
+                </button>
+        </div>        
     </div>
 </div>
 <script>

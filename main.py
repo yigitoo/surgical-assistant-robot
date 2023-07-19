@@ -182,10 +182,30 @@ def start_gui():
     root.bind('<KeyPress>', onKeyPress)
     root.mainloop()
 
+def title_changer(window):
+    from time import sleep
+    for i in range(1, 100):
+        window.set_title('SURGICAL ASSISTANT ROBOT GUI')
+        sleep(3)
+        window.set_title('Written by bengi')
+        sleep(3)
 
 
 if __name__ == "__main__":    
+    import threading 
+    import sys
+
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "-t":
+            start_gui()       
+        elif sys.argv[1] == "-w":
+            window = webview.create_window('SURGICAL ASSISTANT ROBOT GUI', app)
+            webview.start(title_changer, window)
+    else:
+        window = webview.create_window('SURGICAL ASSISTANT ROBOT GUI', app,
+            width=800, height=800, resizable=True,
+        )
+        webview.start(title_changer, window) #'debug=True')
+
+
     
-    window = webview.create_window('SURGICAL ASSISTANT ROBOT GUI', app)
-    webview.start()
-    start_gui()

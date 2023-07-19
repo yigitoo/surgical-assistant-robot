@@ -1,3 +1,6 @@
+@charset "utf-8";
+/* CSS Document */
+
 body {
     display: flex;
     justify-content: center;
@@ -87,4 +90,277 @@ i.left {
 
 i.top {
     transform: rotate(270deg) translate(70px);
+}
+
+
+:root {
+  --light: #ffffff;
+  --theme-color: #222222;
+  --theme-dark: #1f1f1f;
+  --theme-medium: #333333;
+  --body-bg: #353535;
+  --phone-bg: #262626;
+}
+
+.light-theme {
+  --light: #777777;
+  --theme-color: #f0f0f3;
+  --theme-dark: #d9d9d9;
+  --theme-medium: #777777;
+  --body-bg: #353535;
+  --phone-bg: #f5f5f5;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap");
+
+* {
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+body {
+  background: var(--body-bg);
+  font-size: 16px;
+  color: var(--light);
+  font-family: "Nunito", sans-serif;
+  text-transform: uppercase;
+}
+h1 {
+  font-size: 84px;
+  line-height: 86px;
+  letter-spacing: 4px;
+  font-weight: normal;
+}
+p {
+  margin-right: -8px;
+  font-size: 32px;
+  line-height: 32px;
+  font-weight: lighter;
+  letter-spacing: 14px;
+}
+main {
+  padding: 15px;
+  min-height: 100vh;
+  display: flex;
+  display: -webkit-flex;
+  justify-content: center;
+  -webkit-justify-content: center;
+  align-items: center;
+  -webkit-align-items: center;
+}
+.d-flex {
+  display: flex;
+  display: -webkit-flex;
+}
+.justify-content-center {
+  justify-content: center;
+  -webkit-justify-content: center;
+}
+.align-items-center {
+  align-items: center;
+  -webkit-align-items: center;
+}
+.justify-content-between {
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+}
+.phone {
+  width: 375px;
+  height: 812px;
+  background: var(--phone-bg);
+  border: 8px solid var(--theme-dark);
+  border-radius: 28px;
+  position: relative;
+}
+.btn {
+  width: 56px;
+  height: 56px;
+  line-height: 56px;
+  background: var(--theme-color);
+  color: var(--light);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  display: -webkit-flex;
+  justify-content: center;
+  -webkit-justify-content: center;
+  align-items: center;
+  -webkit-align-items: center;
+}
+.btn.btn-small {
+  width: 48px;
+  height: 48px;
+  line-height: 48px;
+}
+.btn img {
+  max-width: 50%;
+  transition: all 0.3s ease-in-out;
+  -webkit-transition: all 0.3s ease-in-out;
+}
+.light-theme img {
+  filter: brightness(0.5);
+  -webkit-filter: brightness(0.5);
+}
+.light-theme .no-mode img {
+  filter: none;
+  -webkit-filter: none;
+}
+.btn-shadow {
+  box-shadow: -10px -10px 20px rgba(255, 255, 255, 0.1),
+    10px 10px 20px rgba(0, 0, 0, 0.25);
+  -webkit-box-shadow: -10px -10px 20px rgba(255, 255, 255, 0.1),
+    10px 10px 20px rgba(0, 0, 0, 0.25);
+}
+.light-theme .btn-shadow {
+  box-shadow: -10px -10px 20px #ffffff, 10px 10px 20px rgba(174, 174, 192, 0.4);
+  -webkit-box-shadow: -10px -10px 20px #ffffff,
+    10px 10px 20px rgba(174, 174, 192, 0.4);
+}
+.list {
+  margin-bottom: 36px;
+  padding: 0 20px;
+}
+.status-bar img {
+  margin-left: 4px;
+}
+.topbar {
+  margin: 20px 0 36px;
+  font-size: 12px;
+  line-height: 14px;
+}
+.center-btns {
+  width: 250px;
+  height: 250px;
+  background: var(--theme-color);
+  border-radius: 50%;
+  position: relative;
+}
+.center-btns::after {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  background: var(--theme-medium);
+  border-radius: 50%;
+}
+.center-btns .btn {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+}
+.center-btns .btn-up,
+.center-btns .btn-down {
+  left: 50%;
+  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+}
+.center-btns .btn-up {
+  top: 8px;
+}
+.center-btns .btn-down {
+  bottom: 8px;
+}
+.center-btns .btn-left,
+.center-btns .btn-right {
+  top: 50%;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+}
+.center-btns .btn-left {
+  left: 8px;
+}
+.center-btns .btn-right {
+  right: 8px;
+}
+.side-btns {
+  padding: 6px;
+  width: 58px;
+  height: 142px;
+  font-size: 12px;
+  background: var(--theme-color);
+  box-shadow: inset -2px -2px 4px rgba(255, 255, 255, 0.1),
+    inset 2px 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 100px;
+  font-family: "Inter", sans-serif;
+}
+.light-theme .side-btns {
+  box-shadow: inset -2px -2px 4px rgba(255, 255, 255, 0.7),
+    inset 2px 2px 4px rgba(174, 174, 192, 0.2);
+  -webkit-box-shadow: inset -2px -2px 4px rgba(255, 255, 255, 0.7),
+    inset 2px 2px 4px rgba(174, 174, 192, 0.2);
+}
+.side-btns .inner {
+  padding: 6px 0px;
+  height: 100%;
+  background: var(--theme-color);
+  box-shadow: -2px -2px 4px rgba(255, 255, 255, 0.1),
+    2px 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 100px;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+}
+.light-theme .side-btns .inner {
+  box-shadow: -2px -2px 4px #ffffff, 2px 2px 4px rgba(174, 174, 192, 0.4);
+  -webkit-box-shadow: -2px -2px 4px #ffffff,
+    2px 2px 4px rgba(174, 174, 192, 0.4);
+}
+.side-btns .btn {
+  width: 32px;
+  height: 32px;
+}
+.bottom-menu {
+  background: var(--theme-dark);
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+}
+.bottom-menu .tranparent-btn {
+  background: transparent;
+}
+.bottom-menu::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 109px;
+  height: 32px;
+  background: url(https://www.yudiz.com/codepen/smart-remote-control/menu-shape.svg)
+    no-repeat top center / 100% auto;
+  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+}
+.light-theme .bottom-menu::after {
+  background-image: url(https://www.yudiz.com/codepen/smart-remote-control/menu-shape-light.svg);
+}
+.bottom-menu > div {
+  width: calc(100% / 5);
+}
+.bottom-menu > div:nth-child(3) {
+  margin-right: auto;
+}
+.bottom-menu > div:nth-child(4) {
+  margin-left: auto;
+}
+.bottom-menu > div button {
+  margin: auto;
+}
+.bottom-menu .center-btn {
+  position: absolute;
+  background: var(--theme-dark);
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  -webkit-transform: translate(-50%, -60%);
+  z-index: 2;
+}
+
+@media (max-width: 480px) {
 }
