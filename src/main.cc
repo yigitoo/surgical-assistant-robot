@@ -41,6 +41,14 @@ void * commandLayer_handle;
 HINSTANCE commandLayer_handle;
 #endif
 
+void sleep(int duration) {
+#ifdef __linux__ 
+	usleep(duration * 1000);
+#elif _WIN32
+	Sleep(duration);	
+#endif
+}
+
 //Function pointers to the functions we need
 // ADMITANCE
 int(*MyInitAPI)();
@@ -142,6 +150,8 @@ void angular_control(std::vector<float> fv_angularVelocity, int result, int dura
 		pointToSend.Position.Actuators.Actuator4 = fv_angularVelocity[3];
 		pointToSend.Position.Actuators.Actuator5 = fv_angularVelocity[4];
 		pointToSend.Position.Actuators.Actuator6 = fv_angularVelocity[5];
+		pointToSend.Position.Actuators.Actuator7 = 0;
+		
 
 		pointToSend.Position.Fingers.Finger1 = 0;
 		pointToSend.Position.Fingers.Finger2 = 0;
@@ -153,6 +163,23 @@ void angular_control(std::vector<float> fv_angularVelocity, int result, int dura
 			MySendBasicTrajectory(pointToSend);
 			sleep(5);
 		}
+
+		pointToSend.Position.Type = ANGULAR_POSITION;
+
+		//We get the actual angular command of the robot.
+		result = (*MyGetAngularCommand)(currentCommand);
+		std::cout << result << std::endl;
+		return;
+		pointToSend.Position.Actuators.Actuator1 = currentCommand.Actuators.Actuator1;
+		pointToSend.Position.Actuators.Actuator2 = currentCommand.Actuators.Actuator2;
+		pointToSend.Position.Actuators.Actuator3 = currentCommand.Actuators.Actuator3;
+		pointToSend.Position.Actuators.Actuator4 = currentCommand.Actuators.Actuator4;
+		pointToSend.Position.Actuators.Actuator5 = currentCommand.Actuators.Actuator5;
+		pointToSend.Position.Actuators.Actuator6 = currentCommand.Actuators.Actuator6;
+		pointToSend.Position.Actuators.Actuator7 = currentCommand.Actuators.Actuator7;
+
+		MySendBasicTrajectory(pointToSend);
+
 	}
 }
 
@@ -194,8 +221,14 @@ void cartesian_control(std::vector<float> fv_cartesianVelocity, int result, int 
 		{
 			//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
 			MySendBasicTrajectory(pointToSend);
-			sleep(5);
+#ifndef _WIN32
+			usleep(5000);
+#else
+			Sleep(5);
+#endif
 		}
+
+
 	}
 }
 
@@ -439,13 +472,6 @@ std::vector<std::vector<float>> get_torque_values(int result)
 	response.push_back(acts);
 	response.push_back(gfacts);
 	return response;
-}
-void sleep(int duration) {
-#ifdef __linux__ 
-	usleep(duration);
-#elif _WIN32
-	Sleep(duration);	
-#endif
 }
 
 int InitializeAPIFunctions(){
