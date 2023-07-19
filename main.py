@@ -14,30 +14,44 @@
 		torques: [0, 0, 0, 0, 0, 0]
 	}
 """                                                          
-
-
-
-''' GO SERVER'INI (EXECUTABLE'I BAŞLAT) '''
-
-# import os 
-# os.system('./goserver')
-
-''' go server'dan dönenleri al '''
-
+from flask import (
+    Flask,
+    render_template,
+    request,
+    jsonify,
+    redirect,
+)
+import json
+import os
 import requests
 
-r = requests.post('https://f220-178-237-49-127.ngrok-free.app/', json={"cmd_name": "get_motor_by_id","cmd_val": "1"})
 
-rdata = r.text
-
-''' f/i kinematics'''
-import json
-
+app = Flask(__name__, static_folder='public', template_folder='templates')
 jdata = json.loads(open('param.json','r').read())
 
+''' GO server'dan dönenleri al '''
+
+@app.get('/get_sensor_values')
+def get_all_sensor_values():
+
+    r = requests.post('https://f220-178-237-49-127.ngrok-free.app/', json={"cmd_name": "get_motor_by_id","cmd_val": "1"})
+
+    rdata = r.text
+    return jsonify(rdata)
+''' f/i kinematics'''
 #jdata["angles"] = json.loads(rdata)
 
+@app.get('/')
+def index():
+    return render_template('index.html')
 
+@app.get('/api')
+def api_doc():
+    return render_template('api.html')
+
+@app.get('/commander')
+def commander():
+    return render_template('commander.html')
 
 import numpy as np
 
@@ -155,3 +169,8 @@ import sys
 
 if len(sys.argv)==2:
     start_gui()
+
+if __name__ == "__main__":    
+    import webview
+    window = webview.create_window('Webview', app)
+    webview.start()

@@ -69,9 +69,16 @@ func SendCommand(ctx *gin.Context) {
 
 	// Wait for the response from the server (optional)
 	reply, err := requester.Recv(0)
-	LogError(err)
+	if err != nil {
+		DirectLogError(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"response": "NULL",
+			"success":  false,
+		})
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"response": reply,
+		"success":  true,
 	})
 }

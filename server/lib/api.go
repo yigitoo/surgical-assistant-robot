@@ -20,8 +20,6 @@ func SetupApi() *gin.Engine {
 	router.SetTrustedProxies([]string{"0.0.0.0"})
 	router.Static("/public", "./public")
 
-	router.LoadHTMLGlob("templates/*.html")
-
 	InfoLogger.Println("Routes are setting into application.")
 
 	router.GET("/", func(ctx *gin.Context) {
@@ -30,21 +28,6 @@ func SetupApi() *gin.Engine {
 		})
 		InfoLogger.Println("GET / HTTP/1. 200")
 	})
-
-	router.GET("/commander", func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "commander.html", gin.H{
-			"content": "This is an index page...",
-		})
-		InfoLogger.Println("GET / HTTP/1. 200")
-	})
-
-	router.GET("/api", func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "api.html", gin.H{
-			"content": "This is an api page...",
-		})
-		InfoLogger.Println("GET /api HTTP/1. 200")
-	})
-
 	InfoLogger.Println("Route / (GET HTTP/1.1) has been setted!")
 
 	router.POST("/", SendCommand)

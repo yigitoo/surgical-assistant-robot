@@ -10,10 +10,9 @@ ARGS = -Iinclude/ -ldl -lzmq -w
 all: clean build run
 
 build:
-	mkdir $(BIN_FOLDER)
 	$(CC) -o $(BIN_FOLDER)/$(BIN_NAME) src/$(FILE_NAME) $(ARGS) 
 clean:
-	rm -rf $(BIN_FOLDER)
+	rm -rf $(BIN_FOLDER)/$(BIN_NAME)
 run: 
 	$(BIN_FOLDER)/$(BIN_NAME)
 

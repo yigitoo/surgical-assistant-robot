@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <style>
+        :root {
+            --text: #000;
+            --bg: #fff;
+        }
+
+        body {
+            font-family: monospace;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text: #000;
+                --bg: #414141;
+            }
+        }
+
+        * {
+            font-size: 40px;
+        }
+        .center {
+            border: 5px solid;
+            border-radius: 20px;
+            position: absolute;
+            padding: 500px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container center">
+    <a href="/commander" class="bg-rounded">
+        <button style="cursor: pointer; padding-left: 150px; padding-right: 150px; color: #fff; background-color: firebrick; border:1px solid black; border-radius: 20px;">
+            Uzaktan Kumanda ile kontrol
+        </button>
+    </a>
+    <a href="/api" class="bg-rounded">
+        <button style="cursor: pointer; padding-left: 150px; padding-right: 150px; margin-top: 50px; color: #000; background-color: greenyellow; border:1px solid white; border-radius: 20px;">
+            API kullanarak nasıl bağlanacağınıza bakın
+        </button>
+    </a>
+</div>
+</body>
+</html>
