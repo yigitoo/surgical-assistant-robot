@@ -7,7 +7,7 @@ intern (with Asst. Prof. Özkan Bebek).
 # Requirements:
 KinovaAPI: version 6.1.0
 <br>
-libzmq-3: ZeroMQ library for communication with backend server and C++ hardware receiver server.
+libzmq-3: ZeroMQ library for communication with backend server and C++ hardware receiver server.<a href="https://zeromq.org/download/"> You can download via this link.</a>
 <br>
 Windows.h: If you are using Windows (Install via Visual Studio)
 <br>
