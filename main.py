@@ -21,9 +21,7 @@ from flask import (
     jsonify,
     redirect,
 )
-import json
-import os
-import requests
+import json, requests, functools, webview, tkinter
 
 
 app = Flask(__name__, static_folder='public', template_folder='templates')
@@ -75,27 +73,65 @@ def ik(X,Y): #Inverse Kinematics Function
     T4 = np.arccos(R3_6[1][2]/np.sin(T5))
     return T4,T5,T6    
 
+tracemod = -1
+
+jargs = list(jdata.keys())
+jargs += [jargs.pop(1)]
 
 ''' kontrol döngüsü '''
 
-def update(m1=0, m2=0, m3=0, m4=0, m5=0, m6=0, xv=0, xy=0):
-   
-    jdata["angles"][0] = m1
-    jdata["angles"][1] = m2
-    jdata["angles"][2] = m3
-    jdata["angles"][3] = m4
-    jdata["angles"][4] = m5
-    jdata["angles"][5] = m6
-    jdata["cartesian"]["x"] = xv
-    jdata["cartesian"]["y"] = yv
+def arr2string(ar):
+    s=""
+    for i in range(len(ar)-1):
+        s+=str(ar[i])+","
+    s+=ar[-1]
+    return s
+def applydata(variables, li):
+    jdata[variables][0] = li[0]
+    jdata[variables][1] = li[1]
+    jdata[variables][2] = li[2]
+    jdata[variables][3] = li[3]
+    jdata[variables][4] = li[4]
+    jdata[variables][5] = li[5]
+
+def update(variables="angles", l=[0,0,0,0,0,0], xv=0, xy=0):
+
+    applydata(variables="angles",li=l)
+    if tracemod == 1:
+        r = requests.post('http://localhost:5632/', json={"cmd_name": "set_angles","cmd_val": f"{arr2string(jdata['angles'])}"})
+        data = f"""
+            {str(jdata[jargs[0]]) + str(jdata[jargs[0]])}
+            {str(jdata[jargs[1]]) + str(jdata[jargs[1]])}
+            {str(jdata[jargs[2]]) + str(jdata[jargs[2]])}
+            {str(jdata[jargs[3]]) + str(jdata[jargs[3]])}
+            {str(jdata[jargs[4]]) + str(jdata[jargs[4]])}
+            """
+    else:
+        r = requests.post('http://localhost:5632/', json={"cmd_name": "get_all","cmd_val":""})
+        s = r.text.split(":")
+        #jdata[jargs[2]] = s[0].split(',')
+        #jdata[jargs[1]] = s[1].split(',')
+        #jdata[jargs[2]] = s[2].split(';')[0] + s[2].split(';')[1] 
+        cartesian = s[3].split(',')
+        jdata[jargs[4]] = {
+            "x": cartesian[0],
+            "y": cartesian[1],
+            "z": cartesian[2],
+            "thetaX": cartesian[3],
+            "thetaY": cartesian[4],
+            "thetaZ": cartesian[5],
+        }
+        jdata[jargs[3]] = s[0].split(';')
+        for i in jargs[1:len(jargs)-1]:
+            applydata(variables=i,li=s[map[str(jargs.index(i))]])    
+        print(data)
 
 xv=0.0
 yv=0.0
 
 ''' gui '''
-from functools import lru_cache
 
-@lru_cache
+@functools.lru_cache
 def start_gui():
 
     def forward():
@@ -122,7 +158,6 @@ def start_gui():
         
 
 
-    import tkinter
     def onKeyPress(event):
         global xv, yv
         if event.char == "w":
@@ -145,32 +180,12 @@ def start_gui():
 
     root = tkinter.Tk()
     root.bind('<KeyPress>', onKeyPress)
-    rB = tkinter.Button(root, text ="￪", command = up, width=15, height=6,font=("Arial",15))
-    rB.pack(side="top")
-    rB = tkinter.Button(root, text ="￬", command = down, width=15, height=6,font=("Arial",15))
-    rB.pack(side="bottom")
-
-    fB = tkinter.Button(root, text ="▲", command = forward, width=20, height=5,font=("Arial",15))
-    fB.place(height=100, width=100,)
-    fB.pack(side="top")
-    bB = tkinter.Button(root, text ="▼", command = back, width=20, height=5,font=("Arial",15))
-    bB.pack(side="bottom")
-    #bB.place(height=100, width=100,)
-    rB = tkinter.Button(root, text ="▶", command = right, width=20, height=5,font=("Arial",15))
-    rB.pack(side="right")
-    #rB.place(height=100, width=100,)
-    lB = tkinter.Button(root, text ="◀", command = left, width=20, height=5,font=("Arial",15))
-    lB.pack(side="left")
-    #lB.place(height=100, width=100,)
-
     root.mainloop()
 
-import sys
 
-if len(sys.argv)==2:
-    start_gui()
 
 if __name__ == "__main__":    
-    import webview
+    
     window = webview.create_window('Webview', app)
     webview.start()
+    start_gui()
