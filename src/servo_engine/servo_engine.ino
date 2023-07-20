@@ -1,12 +1,5 @@
-#include <WiFi.h>
 #include <ArduinoJson.h>
-#include "deneyap.h"
-#include "XL320.h"
-#include "ESPAsyncWebServer.h"
 #include "DynamixelMotor.h"
-
-// Name your robot!
-XL320 robot;
 
 const uint8_t id=1;
 int16_t angular_velocity=512;
@@ -14,7 +7,6 @@ int16_t angular_velocity=512;
 const char* ssid = "hasan";
 const char* password = "yagiz123";
 
-AsyncWebServer server(80);
 int firstMotor = 0;
 int secondMotor = 0;
 int thirdMotor = 0;
@@ -23,12 +15,9 @@ int fourthMotor = 0;
 // direction pin, if you use tristate buffer
 #define DIR_PIN 2
 
-// software serial pins, if you use software serial
-#define SOFT_RX_PIN 3
-#define SOFT_TX_PIN 4
-
+SoftwareSerial robot_serial(3,4);
 // Use this for hardware serial without tristate buffer
-HardwareDynamixelInterface interface(Serial);
+HardwareDynamixelInterface interface(robot_serial);
 DynamixelMotor motor(interface, id);
 const long unsigned int baudrate = 1000000;
 

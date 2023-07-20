@@ -51,6 +51,22 @@ def api_doc():
 def commander():
     return render_template('commander.html')
 
+@app.get('/inc_height')
+def inc_height():
+    return "render_template('inc_height.html')"
+
+@app.get('/dec_height')
+def dec_height():
+    return "render_template('dec_height.html')"
+
+@app.get('/inc_degree')
+def inc_degree():
+    return "render_template('inc_degree.html')"
+
+@app.get('/dec_degree')
+def dec_degree():
+    return "render_template('dec_degree.html')"
+
 import numpy as np
 
 def ik(X,Y): #Inverse Kinematics Function

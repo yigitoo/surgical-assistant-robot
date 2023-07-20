@@ -33,6 +33,8 @@
 #include <conio.h>
 #endif
 
+#define PI 3.14159265358979323846
+
 #include <zmq.hpp>
 
 // KINOVA K-75+ & K-58 ACTUATORS API functions ____ SECTION 1 OF CODE
@@ -84,8 +86,8 @@ int(*MyGetGeneralInformations)(GeneralInformations &Response);
 // GET_TORQUE_VALUE
 int(*MyGetAngularForce)(AngularPosition &Response);
 int(*MyGetAngularForceGravityFree)(AngularPosition &Response);
-
-int goto_home(int result) {
+void angular_control(std::vector<float> fv_angularVelocity, int result);
+std::vector<float> goto_home(int result) {
 	KinovaDevice list[MAX_KINOVA_DEVICE];
 
 	int devicesCount = MyGetDevices(list, result);
@@ -97,7 +99,9 @@ int goto_home(int result) {
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
 		std::cout << "Send the robot to HOME position" << std::endl;
-		MyMoveHome();
+		std::vector<float> degrees{0,208,210,243,0,0};
+		angular_control(degrees, result);
+		return degrees;
 	}
 }
 
@@ -122,7 +126,7 @@ int admittance_control(int result)
 	return 1;
 }
 
-void angular_control(std::vector<float> fv_angularVelocity, int result, int duration)
+void angular_control(std::vector<float> fv_angularVelocity, int result)
 {
 	AngularPosition currentCommand;
 	KinovaDevice list[MAX_KINOVA_DEVICE];
@@ -143,7 +147,7 @@ void angular_control(std::vector<float> fv_angularVelocity, int result, int dura
 		pointToSend.InitStruct();
 
 		//We specify that this point will be used an angular(joint by joint) velocity vector.
-		pointToSend.Position.Type = ANGULAR_VELOCITY;
+		pointToSend.Position.Type = ANGULAR_POSITION;
 
 		pointToSend.Position.Actuators.Actuator1 = fv_angularVelocity[0];
 		pointToSend.Position.Actuators.Actuator2 = fv_angularVelocity[1];
@@ -158,16 +162,13 @@ void angular_control(std::vector<float> fv_angularVelocity, int result, int dura
 		pointToSend.Position.Fingers.Finger2 = 0;
 		pointToSend.Position.Fingers.Finger3 = 0;
 
-		for (int i = 0; i < duration; i++)
-		{
-			//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
-			MySendBasicTrajectory(pointToSend);
-			sleep(5);
-		}
+		//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
+		MySendBasicTrajectory(pointToSend);
+	
 	}
 }
 
-void cartesian_control(std::vector<float> fv_cartesianVelocity, int result, int duration)
+void cartesian_control(std::vector<float> fv_cartesianVelocity, int result)
 {
     CartesianPosition currentCommand;
 	KinovaDevice list[MAX_KINOVA_DEVICE];
@@ -188,7 +189,7 @@ void cartesian_control(std::vector<float> fv_cartesianVelocity, int result, int 
 		pointToSend.InitStruct();
 
 		//We specify that this point will be used an angular(joint by joint) velocity vector.
-		pointToSend.Position.Type = CARTESIAN_VELOCITY;
+		pointToSend.Position.Type = CARTESIAN_POSITION;
 
 		pointToSend.Position.CartesianPosition.X = fv_cartesianVelocity[0];
 		pointToSend.Position.CartesianPosition.Y = fv_cartesianVelocity[1];
@@ -201,18 +202,8 @@ void cartesian_control(std::vector<float> fv_cartesianVelocity, int result, int 
 		pointToSend.Position.Fingers.Finger2 = 0;
 		pointToSend.Position.Fingers.Finger3 = 0;
 
-		for (int i = 0; i < duration; i++)
-		{
-			//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
-			MySendBasicTrajectory(pointToSend);
-#ifdef __linux__
-			usleep(5000);
-#elif _WIN32
-			Sleep(5);
-#endif
-		}
-
-
+		//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
+		MySendBasicTrajectory(pointToSend);
 	}
 }
 
@@ -408,12 +399,8 @@ float get_torque_value(int actuator_id, int result, int modifier)
 	return -9999;
 }
 
-std::vector<std::vector<float>> get_torque_values(int result)
+std::vector<float> get_torque_values(int result)
 {
-
-	std::vector<float> acts;
-	std::vector<float> gfacts;
-
 	AngularPosition torque;
 	AngularPosition torqueGravityFree;
 
@@ -425,37 +412,20 @@ std::vector<std::vector<float>> get_torque_values(int result)
 	{
 		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
 
-
-		acts.push_back(torque.Actuators.Actuator1);
-		acts.push_back(torque.Actuators.Actuator2);
-		acts.push_back(torque.Actuators.Actuator3);
-		acts.push_back(torque.Actuators.Actuator4);
-		acts.push_back(torque.Actuators.Actuator5);
-		acts.push_back(torque.Actuators.Actuator6);
-		acts.push_back(torque.Actuators.Actuator7);
-		
-		
-		gfacts.push_back(torqueGravityFree.Actuators.Actuator1);
-		gfacts.push_back(torqueGravityFree.Actuators.Actuator2);
-		gfacts.push_back(torqueGravityFree.Actuators.Actuator3);
-		gfacts.push_back(torqueGravityFree.Actuators.Actuator4);
-		gfacts.push_back(torqueGravityFree.Actuators.Actuator5);
-		gfacts.push_back(torqueGravityFree.Actuators.Actuator6);
-		gfacts.push_back(torqueGravityFree.Actuators.Actuator7);
-
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
 
 		MyGetAngularForce(torque);
 		MyGetAngularForceGravityFree(torqueGravityFree);
-		
 	}
-
-	std::vector<std::vector<float>> response;
-
-	response.push_back(acts);
-	response.push_back(gfacts);
-	return response;
+	
+	std::vector<float> response;
+	response.push_back(torque.Actuators.Actuator1);
+	response.push_back(torque.Actuators.Actuator2);
+	response.push_back(torque.Actuators.Actuator3);
+	response.push_back(torque.Actuators.Actuator4);
+	response.push_back(torque.Actuators.Actuator5);
+	response.push_back(torque.Actuators.Actuator6);
 }
 
 int InitializeAPIFunctions(){
@@ -564,16 +534,23 @@ int InitializeAPIFunctions(){
 
 // ZEROMQ API functions ____ SECTION 2 OF CODE
 
-int communication_bridge(int result);
+int communication_bridge(int result, std::vector<float> current_degrees);
 void sleep(int duration);
 std::vector<std::string> splitstr(std::string str, char seperator);
-int timestamp();
 std::string float_vector_to_string(std::vector<float> vector);
 std::vector<float> string_to_float_vector(std::string vector_string);
-std::vector<float> make_cartesian_float_vector(CartesianInfo cartesian_info);
+std::vector<float> make_cartesian_to_float_vector(CartesianInfo cartesian_info);
+std::vector<float> degrees_to_radians(std::vector<float> degrees);
+std::vector<float> radians_to_degrees(std::vector<float> radians);
 
 int main(int argc, char *argv[])
 {
+	std::vector<float> current_degrees, arguments;
+	for(int i = 1; i < argc; i++)
+	{
+		arguments.push_back(std::atof(argv[i]));
+	}
+			
     int is_initialized = InitializeAPIFunctions();
     if (!is_initialized) return EXIT_FAILURE;
 
@@ -583,12 +560,38 @@ int main(int argc, char *argv[])
 		std::cout << "DEVICE NOT FOUND ON USB SOCKET" << std::endl;
 		return EXIT_FAILURE;
 	}
-	
-    int programResult = communication_bridge(result);
+
+	current_degrees = goto_home(result);
+	if (argc > 1) angular_control(arguments, result);
+
+    int programResult = communication_bridge(result, current_degrees);
 	result = (*MyCloseAPI)();
     return programResult;
 }
 
+std::vector<float> degrees_to_radians(std::vector<float> degrees)
+{
+	std::vector<float> radians;
+	radians.push_back(degrees[0] * (PI / 180));
+	radians.push_back(degrees[1] * (PI / 180));
+	radians.push_back(degrees[2] * (PI / 180));
+	radians.push_back(degrees[3] * (PI / 180));
+	radians.push_back(degrees[4] * (PI / 180));
+	radians.push_back(degrees[5] * (PI / 180));
+	return radians;
+}
+
+std::vector<float> radians_to_degrees(std::vector<float> radians)
+{
+	std::vector<float> degrees;
+    degrees.push_back(radians[0] * (180 / PI));
+    degrees.push_back(radians[1] * (180 / PI));
+    degrees.push_back(radians[2] * (180 / PI));
+    degrees.push_back(radians[3] * (180 / PI));
+    degrees.push_back(radians[4] * (180 / PI));
+    degrees.push_back(radians[5] * (180 / PI));
+    return degrees;
+}
 
 std::string float_vector_to_string(std::vector<float> vector)
 {
@@ -613,7 +616,7 @@ std::vector<float> string_to_float_vector(std::string vector_string)
     return result;
 }
 
-std::vector<float> make_cartesian_float_vector(CartesianInfo cartesian_info)
+std::vector<float> make_cartesian_to_float_vector(CartesianInfo cartesian_info)
 {
 	std::vector<float> result;
 	result.push_back(cartesian_info.X);
@@ -625,7 +628,7 @@ std::vector<float> make_cartesian_float_vector(CartesianInfo cartesian_info)
 	return result;
 }
 
-int communication_bridge(int result) {
+int communication_bridge(int result, std::vector<float> current_degrees) {
     // Create a ZeroMQ context and socket
     zmq::context_t context(1);
     zmq::socket_t socket(context, ZMQ_REP);
@@ -675,31 +678,40 @@ int communication_bridge(int result) {
 
 			// CARTESIAN_VEL INFO
 			std::vector<CartesianInfo> cartesian = get_cartesian_infos(result);
-			replyMessage += float_vector_to_string(make_cartesian_float_vector(cartesian[0]));
+			replyMessage += float_vector_to_string(make_cartesian_to_float_vector(cartesian[0]));
 			replyMessage += ";";
-			replyMessage += float_vector_to_string(make_cartesian_float_vector(cartesian[1]));
+			replyMessage += float_vector_to_string(make_cartesian_to_float_vector(cartesian[1]));
 
 			replyMessage += ":";
 
 			// TORQUE VALUES
-			std::vector<std::vector<float>> torque_values = get_torque_values(result);
-			replyMessage = float_vector_to_string(torque_values[0]);
-			replyMessage += ";";
-			replyMessage += float_vector_to_string(torque_values[1]);
+			std::vector<float> torque_values = get_torque_values(result);
+			replyMessage += float_vector_to_string(torque_values);
    
 		} else if (request_payload[0] == "set_angle")
 		{
 			std::vector<float> angular_velocity = string_to_float_vector(request_payload[1]);
 			if (angular_velocity.size() != 6) throw std::runtime_error("YOU CANNOT SEND A VECTOR THAT HAVE NOT 6 LENGTH");  
 
-			angular_control(angular_velocity, result, stoi(request_payload[2]));
+			angular_control(angular_velocity, result);
 
+		} else if (request_payload[0] == "inc_angle")
+		{
+			if(current_degrees.size() != 6) throw std::runtime_error("YOU CANNOT SEND A VECTOR THAT HAVE NOT 6 LENGTH");
+			std::vector<float> degrees = string_to_float_vector(request_payload[1]);
+			current_degrees[0] += degrees[0];
+			current_degrees[1] += degrees[1];
+			current_degrees[2] += degrees[2];
+			current_degrees[3] += degrees[3];
+			current_degrees[4] += degrees[4];
+			current_degrees[5] += degrees[5];
+			angular_control(current_degrees, result);
 		} else if(request_payload[0] == "set_cartesian")
 		{
 			std::vector<float> cartesian_velocity = string_to_float_vector(request_payload[1]);
 			if (cartesian_velocity.size() != 6) throw std::runtime_error("YOU CANNOT SEND A VECTOR THAT HAVE NOT 6 LENGTH");  
 
-			cartesian_control(cartesian_velocity, result, stoi(request_payload[2]));
+			cartesian_control(cartesian_velocity, result);
 
 		} else if (request_payload[0] == "goto_home")
 		{
@@ -727,16 +739,14 @@ int communication_bridge(int result) {
         } else if (request_payload[0] == "get_cartesian_info") 
         {
 			std::vector<CartesianInfo> cartesian = get_cartesian_infos(result);
-			replyMessage = float_vector_to_string(make_cartesian_float_vector(cartesian[0]));
+			replyMessage = float_vector_to_string(make_cartesian_to_float_vector(cartesian[0]));
 			replyMessage += ";";
-			replyMessage += float_vector_to_string(make_cartesian_float_vector(cartesian[1]));
+			replyMessage += float_vector_to_string(make_cartesian_to_float_vector(cartesian[1]));
 				
         } else if (request_payload[0] == "get_torque_value") 
         {
-			std::vector<std::vector<float>> torque_values = get_torque_values(result);
-			replyMessage = float_vector_to_string(torque_values[0]);
-			replyMessage += ";";
-			replyMessage += float_vector_to_string(torque_values[1]);
+			std::vector<float> torque_values = get_torque_values(result);
+			replyMessage = float_vector_to_string(torque_values);
         } else {
             std::cout << "Error: Requst is not sending clearly" << std::endl;
             std::cout << "Request payload: " << receivedMessage << std::endl;
@@ -753,13 +763,6 @@ int communication_bridge(int result) {
     context.close();
 
     return EXIT_SUCCESS;
-}
-
-
-int timestamp() {
-    return std::chrono::duration_cast<std::chrono::milliseconds>
-        (std::chrono::system_clock::now().time_since_epoch())
-        .count();
 }
 
 // Create custom split() function.  
