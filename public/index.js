@@ -23,18 +23,22 @@ const change_motor = () => {
 let successful = null;
 
 const inc_height = () => {
+    if(current_mode === "angular") return;
     successful = fetch_req('inc_height', current_motor);    
 };
 
 const dec_height = () => {
+    if(current_mode === "angular") return;
     successful = fetch_req('dec_height', current_motor); 
 };
 
 const inc_degree = () => {
+    if(current_mode !== "angular") return;
     successful = fetch_req('inc_degree', current_motor);
 };
 
 const dec_degree = () => {
+    if(current_mode !== "angular") return;
     successful = fetch_req('dec_degree', current_motor);
 };
 
