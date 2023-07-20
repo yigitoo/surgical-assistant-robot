@@ -1,6 +1,5 @@
 #include <WiFi.h>
 #include <ArduinoJson.h>
-#ifdef __DENEYAP_KART_
 #include "deneyap.h"
 #include "XL320.h"
 #include "ESPAsyncWebServer.h"
@@ -29,7 +28,7 @@ int fourthMotor = 0;
 #define SOFT_TX_PIN 4
 
 // Use this for hardware serial without tristate buffer
-HardwareDynamixelInterface interface(SOFT_RX_PIN, SOFT_TX_PIN, DIR_PIN);
+HardwareDynamixelInterface interface(Serial);
 DynamixelMotor motor(interface, id);
 const long unsigned int baudrate = 1000000;
 
