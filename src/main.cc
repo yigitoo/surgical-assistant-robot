@@ -164,23 +164,6 @@ void angular_control(std::vector<float> fv_angularVelocity, int result, int dura
 			MySendBasicTrajectory(pointToSend);
 			sleep(5);
 		}
-
-		pointToSend.Position.Type = ANGULAR_POSITION;
-
-		//We get the actual angular command of the robot.
-		result = (*MyGetAngularCommand)(currentCommand);
-		std::cout << result << std::endl;
-		return;
-		pointToSend.Position.Actuators.Actuator1 = currentCommand.Actuators.Actuator1;
-		pointToSend.Position.Actuators.Actuator2 = currentCommand.Actuators.Actuator2;
-		pointToSend.Position.Actuators.Actuator3 = currentCommand.Actuators.Actuator3;
-		pointToSend.Position.Actuators.Actuator4 = currentCommand.Actuators.Actuator4;
-		pointToSend.Position.Actuators.Actuator5 = currentCommand.Actuators.Actuator5;
-		pointToSend.Position.Actuators.Actuator6 = currentCommand.Actuators.Actuator6;
-		pointToSend.Position.Actuators.Actuator7 = currentCommand.Actuators.Actuator7;
-
-		MySendBasicTrajectory(pointToSend);
-
 	}
 }
 
@@ -222,9 +205,9 @@ void cartesian_control(std::vector<float> fv_cartesianVelocity, int result, int 
 		{
 			//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
 			MySendBasicTrajectory(pointToSend);
-#ifndef _WIN32
+#ifdef __linux__
 			usleep(5000);
-#else
+#elif _WIN32
 			Sleep(5);
 #endif
 		}
