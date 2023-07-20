@@ -99,7 +99,7 @@ std::vector<float> goto_home(int result) {
 		//Setting the current device as the active device.
 		MySetActiveDevice(list[i]);
 		std::cout << "Send the robot to HOME position" << std::endl;
-		std::vector<float> degrees{0,208,210,243,0,0};
+		std::vector<float> degrees{0,208,210,0,120,0};
 		angular_control(degrees, result);
 		return degrees;
 	}

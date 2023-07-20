@@ -47,26 +47,63 @@ def index():
 def api_doc():
     return render_template('api.html')
 
-@app.get('/commander')
+@app.get('/commander/')
 def commander():
     return render_template('commander.html')
 
-@app.get('/inc_height')
+@app.get('/inc_height/<int:motor_id>')
 def inc_height():
     return "render_template('inc_height.html')"
 
-@app.get('/dec_height')
+@app.get('/dec_height/<int:motor_id>')
 def dec_height():
     return "render_template('dec_height.html')"
 
-@app.get('/inc_degree')
-def inc_degree():
-    return "render_template('inc_degree.html')"
+@app.get('/inc_degree/<int:motor_id>')
+def inc_degree(motor_id):
 
-@app.get('/dec_degree')
-def dec_degree():
-    return "render_template('dec_degree.html')"
+    cmd_val = inc_cmd_list_creator(motor_id, False)
 
+    requests.post('http://localhost:5632/', json={
+        "cmd_name": "inc_angle",
+        "cmd_val": cmd_val,
+    })
+
+    return jsonify({
+        "messaage": "success"
+    })
+@app.get('/dec_degree/<int:motor_id>')
+def dec_degree(motor_id: int):
+    
+    cmd_val = inc_cmd_list_creator(motor_id, True)
+
+    requests.post('http://localhost:5632/', json={
+        "cmd_name": "inc_angle",
+        "cmd_val": cmd_val,
+    })
+    return jsonify({
+        "messaage": "success"
+    })
+
+def inc_cmd_list_creator(act_id: int, is_neg: bool) -> str:
+    result = ""
+    l_result = []
+    for i in range(6):
+        if i != (act_id - 1):
+            l_result.append(0)
+        else:
+            if is_neg:
+                l_result.append(-5)
+            else:
+                l_result.append(5)
+
+    for index in range(len(l_result) - 1):
+        result += str(l_result[index]) + ','
+
+    result += str(l_result[-1])
+
+    return result
+    
 import numpy as np
 
 def ik(X,Y): #Inverse Kinematics Function
@@ -213,7 +250,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "-t":
-            start_gui()       
+            app.run(host='0.0.0.0', port=1453, debug=True)
         elif sys.argv[1] == "-w":
             window = webview.create_window('SURGICAL ASSISTANT ROBOT GUI', app)
             webview.start(title_changer, window)

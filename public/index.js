@@ -23,23 +23,27 @@ const change_motor = () => {
 let successful = null;
 
 const inc_height = () => {
-    successful = fetch_req('inc_height');    
+    successful = fetch_req('inc_height', current_motor);    
 };
 
 const dec_height = () => {
-    successful = fetch_req('dec_height'); 
+    successful = fetch_req('dec_height', current_motor); 
 };
 
 const inc_degree = () => {
-    successful = fetch_req('inc_degree');
+    successful = fetch_req('inc_degree', current_motor);
 };
 
 const dec_degree = () => {
-    successful = fetch_req('dec_degree');
+    successful = fetch_req('dec_degree', current_motor);
 };
 
-const fetch_req = (pathname) => {
-    const response = fetch(`/${pathname}`, {
+const fetch_req = (pathname, current_motor) => {
+    const response = fetch(`/${pathname}/${current_motor}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
     })
     .then(response => response.json())
     .then(data => {
