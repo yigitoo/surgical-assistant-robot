@@ -24,4 +24,4 @@ Golang: 1.20 version of golang.
 LICENSE: MIT License <br>
 Maintainer: Asst. Prof. Özkan Bebek <br>
 Maintainer's Asst's: Ahmet Burhan Kara, Süleyman Can Çevik.
-Authors: Yiğit GÜMÜŞ, Salih Burak AYDOĞDU, Ozan GÖRGÜ, Bengisu PAPAKÇI, Arda Ekrem ÇAKIR
+Authors: Yiğit GÜMÜŞ, Salih Burak AYDOĞDU, Ozan GÖRGÜ, Bengisu PAPAKÇI
