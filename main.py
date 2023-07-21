@@ -22,7 +22,12 @@ from flask import (
     redirect,
 )
 import json, requests, functools, webview, tkinter
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
+
+initial_pos = (100,160)
 
 app = Flask(__name__, static_folder='public', template_folder='templates')
 jdata = json.loads(open('param.json','r').read())
@@ -50,14 +55,6 @@ def api_doc():
 @app.get('/commander/')
 def commander():
     return render_template('commander.html')
-
-@app.get('/inc_height/<int:motor_id>')
-def inc_height():
-    return "render_template('inc_height.html')"
-
-@app.get('/dec_height/<int:motor_id>')
-def dec_height():
-    return "render_template('dec_height.html')"
 
 @app.get('/inc_degree/<int:motor_id>')
 def inc_degree(motor_id):
@@ -103,8 +100,6 @@ def inc_cmd_list_creator(act_id: int, is_neg: bool) -> str:
     result += str(l_result[-1])
 
     return result
-    
-import numpy as np
 
 def ik(X,Y): #Inverse Kinematics Function
     T2 = np.arctan2(Y,X)
@@ -237,21 +232,135 @@ def start_gui():
 
 def title_changer(window):
     from time import sleep
-    for i in range(1, 100):
+    while True:
         window.set_title('SURGICAL ASSISTANT ROBOT GUI')
         sleep(3)
-        window.set_title('Written by Surgical Assistanr Robot Interns\'2023')
+        window.set_title('Written by Surgical Assistan Robot Interns\'2023')
         sleep(3)
 
+class animator():
+
+    def __init__(self):
+        plt.ion()
+        plt.title(r'$\Sigma(x) = \gamma x^2 \sin(\theta)$', pad = 20)
+        plt.ylim([0, 800])
+        plt.xlim([0, 800])
+        plt.axis([0, 800, 0, 800])
+        self.x = np.linspace(0, 10*np.pi, 100)
+        self.y = np.sin(self.x)
+
+        self.line1, = plt.plot(self.x, self.y, 'b-')
+        
+        plt.margins(2,2) # Default margin is 0.05, value
+
+    def main(self, a1,a2,a3,t1,t2,t3):
+        global plt
+        def calc(m1, t1):
+            x = np.cos(np.radians(t1))*m1
+            y = np.sin(np.radians(t1))*m1
+            return x,y
+
+        initial_pos = (0,160)
+
+        vals1 = calc(a1,t1)
+        vals2 = calc(a2,t2)
+        vals3 = calc(a3,t3)
+        #vals4 = calc(a4,t4)
+        #vals5 = calc(a5,t5)
+
+        plt.plot(initial_pos[0],initial_pos[1],initial_pos[0]+vals1[0],initial_pos[1]+vals1[1],marker = 'o')
+
+        plt.plot(initial_pos[0]+vals1[0],initial_pos[1]+vals1[1],vals1[0]+vals2[0],
+                initial_pos[1]+vals1[1]+vals2[1],marker = 'o')
+
+        plt.plot(initial_pos[0]+vals1[0],initial_pos[1]+vals1[1],vals1[0]+vals2[0],
+                initial_pos[1]+vals1[1]+vals2[1],marker = 'o')
+
+        plt.plot(initial_pos[0]+vals1[0]+vals2[0],initial_pos[1]+vals1[1]+vals2[1],vals1[0]+vals2[0]+vals3[0],
+                initial_pos[1]+vals1[1]+vals2[1]+vals3[1],marker = 'o')
+
+        '''
+        plt.plot(0+vals1[0]+vals2[0]+vals3[0],160+vals1[1]+vals2[1]+vals3[1],vals1[0]+vals2[0]+vals3[0]+vals4[0],
+                160+vals1[1]+vals2[1]+vals3[1]+vals4[1],marker = 'o')
+
+        plt.plot(0+vals1[0]+vals2[0]+vals3[0]+vals4[0],160+vals1[1]+vals2[1]+vals3[1]+vals4[1],vals1[0]+vals2[0]+vals3[0]+vals4[0]+vals5[0],
+                160+vals1[1]+vals2[1]+vals3[1]+vals4[1]+vals5[1],marker = 'o')
+        '''
+
+        return {"xvals":[vals1[0],vals2[0],vals3[0]],"yvals":[vals1[1],vals2[1],vals3[1]]}
+
+        '''
+        return (0+vals1[0],160+vals1[1],vals1[0]+vals2[0],
+                160+vals1[1]+vals2[1],
+                0+vals1[0],160+vals1[1],vals1[0]+vals2[0],
+                160+vals1[1]+vals2[1],
+                0+vals1[0]+vals2[0],160+vals1[1]+vals2[1],vals1[0]+vals2[0]+vals3[0],
+                160+vals1[1]+vals2[1]+vals3[1]),
+        '''
+
+    def main2(self, a1,a2,a3,t1,t2,t3):
+        
+        global plt
+        
+        def calc(m1, t1):
+            x = np.cos(np.radians(t1))*m1
+            y = np.sin(np.radians(t1))*m1
+            return x,y
+
+
+        vals1 = calc(a1,t1)
+        vals2 = calc(a2,t2)
+        vals3 = calc(a3,t3)
+        #vals4 = calc(a4,t4)
+        #vals5 = calc(a5,t5)
+
+        plt.plot(initial_pos[0],self.inital_pos[1],initial_pos[0]+vals1[0],initial_pos[1]+vals1[1],marker = 'o')
+
+        plt.plot(initial_pos[0]+vals1[0],initial_pos[1]+vals1[1],vals1[0]+vals2[0],
+                initial_pos[1]+vals1[1]+vals2[1],marker = 'o')
+
+        plt.plot(initial_pos[0]+vals1[0],initial_pos[1]+vals1[1],vals1[0]+vals2[0],
+                initial_pos[1]+vals1[1]+vals2[1],marker = 'o')
+
+        plt.plot(initial_pos[0]+vals1[0]+vals2[0],initial_pos[1]+vals1[1]+vals2[1],vals1[0]+vals2[0]+vals3[0],
+                initial_pos[1]+vals1[1]+vals2[1]+vals3[1],marker = 'o')
+        '''    
+        plt.plot(0+vals1[0]+vals2[0]+vals3[0],160+vals1[1]+vals2[1]+vals3[1],vals1[0]+vals2[0]+vals3[0]+vals4[0],
+                160+vals1[1]+vals2[1]+vals3[1]+vals4[1],marker = 'o')
+
+        plt.plot(0+vals1[0]+vals2[0]+vals3[0]+vals4[0],160+vals1[1]+vals2[1]+vals3[1]+vals4[1],vals1[0]+vals2[0]+vals3[0]+vals4[0]+vals5[0],
+                160+vals1[1]+vals2[1]+vals3[1]+vals4[1]+vals5[1],marker = 'o')
+        '''
+        
+
+        return {"xvals":[vals1[0],vals2[0],vals3[0]],"yvals":[vals1[1],vals2[1],vals3[1]]}
+        '''
+        return (0+vals1[0],160+vals1[1],vals1[0]+vals2[0],
+                160+vals1[1]+vals2[1],
+                0+vals1[0],160+vals1[1],vals1[0]+vals2[0],
+                160+vals1[1]+vals2[1],
+                0+vals1[0]+vals2[0],160+vals1[1]+vals2[1],vals1[0]+vals2[0]+vals3[0],
+                160+vals1[1]+vals2[1]+vals3[1]),
+        '''
 
 if __name__ == "__main__":    
     import threading 
     import sys
 
     if len(sys.argv) > 1:
+        if sys.argv[1] == "-a":
+            import time
+            animating = animator()
+            for i in range(10000):
+                animating.main(a1=165.01, a2=140, a3=275.8,t1=10,t2=20,t3=i)
+                plt.xlim(0,800)
+                plt.ylim(0,800)
+                plt.show()
+                plt.pause(0.1)
+                plt.clf()
         if sys.argv[1] == "-t":
             app.run(host='0.0.0.0', port=1453, debug=True)
-        elif sys.argv[1] == "-w":
+        if sys.argv[1] == "-w":
             window = webview.create_window('SURGICAL ASSISTANT ROBOT GUI', app)
             webview.start(title_changer, window)
     else:
@@ -259,6 +368,3 @@ if __name__ == "__main__":
             width=800, height=800, resizable=True,
         )
         webview.start(title_changer, window) #'debug=True')
-
-
-    
