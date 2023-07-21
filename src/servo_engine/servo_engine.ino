@@ -17,11 +17,11 @@ int fourthMotor = 0;
 
 SoftwareSerial robot_serial(3,4);
 // Use this for hardware serial without tristate buffer
-HardwareDynamixelInterface interface(robot_serial);
-DynamixelMotor motor(interface, id);
+SoftwareSerial interface(robot_serial);
+SoftwareSerial motor(interface, id);
 const long unsigned int baudrate = 1000000;
 
-DynamixelDevice broadcast_device(interface, BROADCAST_ID);
+SoftwareSerial broadcast_device(interface, BROADCAST_ID);
 
 uint8_t led_state = true;
 
