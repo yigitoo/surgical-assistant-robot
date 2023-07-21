@@ -21,7 +21,7 @@ from flask import (
     jsonify,
     redirect,
 )
-import json, requests, functools, webview, tkinter
+import json, requests, functools, tkinter
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -262,9 +262,9 @@ class animator():
 
         initial_pos = (0,160)
 
-        vals1 = calc(a1,t1)
-        vals2 = calc(a2,t2)
-        vals3 = calc(a3,t3)
+        vals1 = calc(a1,np.rad2deg(t1))
+        vals2 = calc(a2,np.rad2deg(t2))
+        vals3 = calc(a3,np.rad2deg(t3))
         #vals4 = calc(a4,t4)
         #vals5 = calc(a5,t5)
 
