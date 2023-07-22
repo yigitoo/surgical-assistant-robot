@@ -262,23 +262,38 @@ class animator():
 
         initial_pos = (0,160)
 
-        vals1 = calc(a1,np.rad2deg(t1))
-        vals2 = calc(a2,np.rad2deg(t2))
-        vals3 = calc(a3,np.rad2deg(t3))
+        vals1 = calc(a1,(t1))
+        vals2 = calc(a2,(t1+t2))
+        vals3 = calc(a3,(t1+t2+t3))
         #vals4 = calc(a4,t4)
         #vals5 = calc(a5,t5)
 
-        plt.plot(initial_pos[0],initial_pos[1],initial_pos[0]+vals1[0],initial_pos[1]+vals1[1],marker = 'o')
-
-        plt.plot(initial_pos[0]+vals1[0],initial_pos[1]+vals1[1],vals1[0]+vals2[0],
-                initial_pos[1]+vals1[1]+vals2[1],marker = 'o')
-
-        plt.plot(initial_pos[0]+vals1[0],initial_pos[1]+vals1[1],vals1[0]+vals2[0],
-                initial_pos[1]+vals1[1]+vals2[1],marker = 'o')
-
-        plt.plot(initial_pos[0]+vals1[0]+vals2[0],initial_pos[1]+vals1[1]+vals2[1],vals1[0]+vals2[0]+vals3[0],
-                initial_pos[1]+vals1[1]+vals2[1]+vals3[1],marker = 'o')
-
+    
+        x0 = 0
+        y0 = 160
+        
+        x1 = a1 * np.cos(t1)
+        y1 = y0 + a1*np.sin(t1)
+        
+        x2 = x1 + a2 * np.cos(t1+t2 )
+        y2 = y1 + a2 * np.sin(t1+t2)
+        
+        x3 = x2 + a3*np.cos(t1+t2+t3)
+        y3 = y2 + a3*np.sin(t1+t2+t3)
+        
+        print("x3:", x1, "   y3: ", y1)
+        
+        plt.xlabel("X")
+        plt.ylabel("Y")
+        plt.title("ROBOT_MOVING")
+            
+            
+        plt.plot(0,0, color = 'red', linestyle = "--", linewidth = 4, marker = 'o', markersize=4)
+        plt.plot(x0,y0, color = 'red', linestyle = "--", linewidth = 4, marker = 'o', markersize=4)
+        plt.plot(x1,y1, color = 'red', linestyle = "--", linewidth = 4, marker = 'o', markersize=4)
+        plt.plot(x2,y2, color = 'red', linestyle = "--", linewidth = 4, marker = 'o', markersize=4)
+        plt.plot(x3,y3, color = 'red', linestyle = "--", linewidth = 4, marker = 'o', markersize=4)
+            
         '''
         plt.plot(0+vals1[0]+vals2[0]+vals3[0],160+vals1[1]+vals2[1]+vals3[1],vals1[0]+vals2[0]+vals3[0]+vals4[0],
                 160+vals1[1]+vals2[1]+vals3[1]+vals4[1],marker = 'o')
@@ -351,8 +366,8 @@ if __name__ == "__main__":
         if sys.argv[1] == "-a":
             import time
             animating = animator()
-            for i in range(10000):
-                animating.main(a1=165.01, a2=140, a3=275.8,t1=10,t2=20,t3=i)
+            for i in range(100):
+                animating.main(a1=165.01, a2=140, a3=275.8+335,t1=10,t2=20,t3=i)
                 plt.xlim(0,800)
                 plt.ylim(0,800)
                 plt.show()
