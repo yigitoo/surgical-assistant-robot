@@ -55,7 +55,8 @@ server | GoLang Projexy Server for communication with backend server and C++ har
 ---
 current directory
 |
-\--> main.py is used for commander app (Coded in Flask).
+\----> main.py | It is used for commander app (Coded in Flask).
+\----> setup.sh | Main setup bash script for install dependencies of this project.
 ---
 templates | Folder for holding HTML5 templates for Flask (Python3 micro backend framework)
 |
@@ -68,6 +69,9 @@ public | Folder for holding CSS3 and JavaScript files for Flask Server. (Command
 |
 \----> index.css | Static CSS file
 \----> index.js | Static JavaScript file
+---
+arduino_libraries | It's used for servo engines to add that your Arduino IDE
+use the bash script named `setup.sh`
 ---
 ...
 \----> Other files are is used for experimantal settings.
