@@ -28,7 +28,7 @@ Golang: 1.20 version of golang.
 src
 |
 \----> main.cc is used for to communcate between commander and hardware. (Kinova KA-75+ & KA-58 Actuators)
-                                                (We used this actuators for moving surgical-assistant-robot)
+                                    (We used this actuators for moving surgical-assistant-robot)
 ---
 server | GoLang Projexy Server for communication with backend server and C++ hardware sender/receiver server.
 |
@@ -38,6 +38,10 @@ server | GoLang Projexy Server for communication with backend server and C++ har
        \----> api.go | The head of the project structure and the api handlers for the application server.
        \----> logger.go | The logger for the application server.
        \----> config.go | The config for the application server.
+---
+current directory
+|
+\--> main.py is used for commander app (Coded in Flask).
 ---
 templates | Folder for holding HTML5 templates for Flask (Python3 micro backend framework)
 |
@@ -51,6 +55,8 @@ public | Folder for holding CSS3 and JavaScript files for Flask Server. (Command
 \----> index.css | Static CSS file
 \----> index.js | Static JavaScript file
 ---
+...
+\----> Other files are is used for experimantal settings.
 </pre>
 <br>
 ---
