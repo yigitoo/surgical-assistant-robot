@@ -5,21 +5,35 @@ intern (with Asst. Prof. Özkan Bebek).
 <br>
 
 # Requirements:
+
 KinovaAPI: version 6.1.0
 <br>
-libzmq-3: ZeroMQ library for communication with backend server and C++ hardware receiver server.<a href="https://zeromq.org/download/"> You can download via this link.</a>
+
+<b>libzmq-3:</b> ZeroMQ library for communication with backend server and C++ hardware receiver server.<a href="https://zeromq.org/download/"> You can download via this link.</a>
+
 <br>
-Windows.h: If you are using Windows (Install via Visual Studio)
+
+<b>Windows.h:</b> If you are using Windows (Install via Visual Studio)
+
 <br>
-dlfcn.h: If you are using Linux (i think it comes with gcc / like a std lib in C/C++)
+
+<b>dlfcn.h:</b> If you are using Linux (i think it comes with gcc / like a std lib in C/C++)
+
 <br>
-C++ compiler: i preferred g++ compiler
+
+<b>C++ compiler:</b> i preferred g++ compiler
+
 <br>
-Golang: 1.20 version of golang.
+
+<b>Golang:</b> 1.20 version of golang.
+Note: 1.20 is the default version for Golang api 
+It's not tested on other versions.<br>
+The stabilistic version is this.<br>
 <br>
 <br>
 
 ---
+
 <br>
 
 # The project structure is:
@@ -59,7 +73,6 @@ public | Folder for holding CSS3 and JavaScript files for Flask Server. (Command
 \----> Other files are is used for experimantal settings.
 </pre>
 <br>
----
 
 # Informations about project.
 
