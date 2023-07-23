@@ -44,6 +44,12 @@ src
 \----> main.cc is used for to communcate between commander and hardware. (Kinova KA-75+ & KA-58 Actuators)
                                     (We used this actuators for moving surgical-assistant-robot)
 ---
+include
+|
+\----> Third party headers are included in the side of C++ code.
+\----> Kinova KA-75+ & KA-58 Actuators header files. (That's not enoug for usage you need .so dynamic libraries to use them.)
+\----> RapidJSON: It is a third party json handling library developed by Tencent Coorparation. (The PUBG one)
+---
 server | GoLang Projexy Server for communication with backend server and C++ hardware sender/receiver server.
 |
 \----> main.go | Main file for application server
