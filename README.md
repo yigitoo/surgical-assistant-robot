@@ -25,8 +25,8 @@ KinovaAPI: version 6.1.0
 
 <br>
 
-<b>Golang:</b> 1.20 version of golang.
-Note: 1.20 is the default version for Golang api 
+<b>Golang:</b> 1.20 version of golang.<br>
+Note: 1.20 is the default version for Golang API<br>
 It's not tested on other versions.<br>
 The stabilistic version is this.<br>
 <br>
