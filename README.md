@@ -100,7 +100,7 @@ use the bash script named `setup.sh`
 
 ---
 
-...
+experiments
 \----> Other files are is used for experimantal settings.
 </pre>
 <br>
