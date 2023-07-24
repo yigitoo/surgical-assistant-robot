@@ -96,9 +96,9 @@ def main2(a1,a2,a3,t1,t2,t3):
     '''
 
 import pickle
-with open('data_new','rb') as f:
+with open('Robot_values','rb') as f:
     dataset = pickle.load(f)
-dataset = np.array(dataset)
+dataset = np.radians(dataset)
 print(dataset)
 for i in dataset:
     print(len(i))

@@ -2,7 +2,7 @@ CC = g++
 
 BIN_FOLDER = bin
 BIN_NAME = robot_arm
-fn = main.cc
+fn = robot_arm.cc
 FILE_NAME = $(fn)
 
 ARGS = -Iinclude/ -ldl -lzmq -w
