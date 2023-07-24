@@ -55,6 +55,12 @@ include
 
 ---
 
+bin
+|
+\----> Build directory for our source files.
+
+---
+
 server | GoLang Projexy Server for communication with backend server and C++ hardware sender/receiver server.
 |
 \----> main.go | Main file for application server
