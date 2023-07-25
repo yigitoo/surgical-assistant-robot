@@ -32,7 +32,7 @@ import webview
 
 initial_pos = (100,160)
 
-app = Flask(__name__, static_folder='public', template_folder='templates')
+app = Flask(__name__, static_folder='../public', template_folder='../templates')
 jdata = json.loads(open('param.json','r').read())
 
 ''' GO server'dan dönenleri al '''
@@ -369,16 +369,8 @@ def use_matrix():
         dataset = np.array(dataset).T
     counter = 0
     for (d1, d2, d3) in dataset:
-        if counter % 2 == 0:
-            prev = time.time() 
-            r = requests.post('http://localhost:5632/', json={"cmd_name": "set_angle","cmd_val": f"0,{d1},{d2},0,{d3},0"})
-            current = time.time()
-            latency = current - prev
-            print(latency)
-        if counter > 50:
-            break
-        counter += 1
-    
+        r = requests.post('http://localhost:5632/', json={"cmd_name": "set_angle","cmd_val": f"0,{d1},{d2},0,{d3},0"})
+        
 if __name__ == "__main__":    
     import threading 
     import sys
