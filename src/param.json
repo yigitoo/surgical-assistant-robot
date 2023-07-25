@@ -1,1 +1,42 @@
-{"angles": [0, 0, 0, 0.0, 90.0, 0.0], "cartesian": {"x": 0, "y": 0.0, "z": 0, "thetaX": 0, "thetaY": 0, "thetaZ": 0}, "temperatures": [0, 0, 0, 0, 0, 0], "currents": [0, 0, 0, 0, 0, 0], "torques": [0, 0, 0, 0, 0, 0]}
+{
+    "angles": [
+        0,
+        0,
+        0,
+        0.0,
+        90.0,
+        0.0
+    ],
+    "cartesian": {
+        "x": 0,
+        "y": 0.0,
+        "z": 0,
+        "thetaX": 0,
+        "thetaY": 0,
+        "thetaZ": 0
+    },
+    "temperatures": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "currents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "torques": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ]
+}

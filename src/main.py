@@ -34,7 +34,8 @@ initial_pos = (100,160)
 
 app = Flask(__name__, static_folder='../public', template_folder='../templates')
 jdata = json.loads(open('param.json','r').read())
-
+with open('param.json','w+') as f:
+    json.dump(jdata, f, indent=4)
 ''' GO server'dan dönenleri al '''
 
 @app.get('/get_sensor_values')
@@ -227,7 +228,8 @@ def start_gui():
         update(m4=l[0], m5=l[1], m6=l[2])
         print(yv,xv)
         print(l, jdata)
-        open('param.json','w+').write(json.dumps(jdata))
+        with open('param.json','w+') as f:
+            json.dump(jdata, f, indent=4)
 
     root = tkinter.Tk()
     root.bind('<KeyPress>', onKeyPress)
