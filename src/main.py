@@ -363,14 +363,21 @@ class animator():
 
 
 def use_matrix():
-    with open('Robot_values','rb') as f :
-        dataset = pickle.load(f)
-        time.sleep(2)
-        dataset = np.array(dataset).T
-    counter = 0
-    for (d1, d2, d3) in dataset:
-        r = requests.post('http://localhost:5632/', json={"cmd_name": "set_angle","cmd_val": f"0,{d1},{d2},0,{d3},0"})
-        
+    import csv
+    import pandas as pd
+
+    df = pd.read_csv('square_d_300.csv')
+    d1 = df['EKSEN1']
+    d2 = df['EKSEN2']
+    d3 = df['EKSEN3']
+    d4 = df['EKSEN4']
+    d5 = df['EKSEN5']
+    
+    for i in range(0, len(d1)):
+        r = requests.post('http://localhost:5632/', json={"cmd_name": "set_angle","cmd_val": f"{d1[i]},{d2[i]},{d3[i]},{d4[i]},{d5[i]},0"})
+        if i == 0:
+            time.sleep(3)
+
 if __name__ == "__main__":    
     import threading 
     import sys
