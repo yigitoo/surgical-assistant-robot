@@ -1,7 +1,10 @@
+# FOR ACTUATORS
 Flask
 pywebview
 requests
 ipython
+# FOR SERVOS
 # pyserial used by side on servo via esp32 async web server (esptool.py uses)
 pyserial
 pypot
+dynamixel-sdk

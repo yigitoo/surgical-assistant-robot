@@ -4,7 +4,7 @@ from time import sleep
 
 class DynamixelServo(object):
     def __init__(self):
-        self.dxl_io = pypot.dynamixel.Dxl320IO('/dev/ttyUSB0', baudrate=1000000)
+        self.dxl_io = pypot.dynamixel.Dxl320IO('COM5', baudrate=1000000)
 
         self.m1_home = -13
         self.m2_home = 18
@@ -24,7 +24,7 @@ class DynamixelServo(object):
         self.m1_angle = (roll + self.m1_home) * 0.75
         m2_angle = pitch + self.m2_home
         self.dxl_io.set_goal_position({1: self.m1_angle, 2: self.m2_angle, 3: self.m3_angle, 4: self.m4_angle})
-    
+
         print("Dynamixel Motor Angles:\n")
         print("{}, {}, {}, {}".format(
             np.round(self.m1_angle, 2),
@@ -34,7 +34,8 @@ class DynamixelServo(object):
         )
 
 if __name__ == '__main__':
-    print(pypot.dynamixel.get_available_ports())
+    import sys
     servos = DynamixelServo()
-    print(servos.dxl_io.scan())
 
+    if sys.argv[-1] == "-gotohome":
+        servos.home_pos()
