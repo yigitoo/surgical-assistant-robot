@@ -25,6 +25,7 @@ import json, requests, functools, tkinter
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import webview
 
 
 initial_pos = (100,160)
@@ -364,9 +365,9 @@ def use_matrix():
     with open('Robot_values','rb') as f :
         dataset = pickle.load(f)
         time.sleep(2)
-    if 1:#for i in range(len(dataset[0])//10):
-        r = requests.post('http://localhost:5632/', json={"cmd_name": "set_angle","cmd_val": f"0,{dataset[0][-1]},{dataset[1][-1]},0,{dataset[2][-1]},0"})
-        time.sleep(1)
+    for i in range(len(dataset[0])):
+        r = requests.post('http://localhost:5632/', json={"cmd_name": "set_angle","cmd_val": f"0,{dataset[0][i]},{dataset[1][i]},0,{dataset[2][i]},0"})
+        time.sleep(4)
         print(i)
     print(dataset)
 if __name__ == "__main__":    

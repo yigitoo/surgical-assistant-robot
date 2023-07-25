@@ -87,7 +87,11 @@ int(*MyGetGeneralInformations)(GeneralInformations &Response);
 int(*MyGetAngularForce)(AngularPosition &Response);
 int(*MyGetAngularForceGravityFree)(AngularPosition &Response);
 void angular_control(std::vector<float> fv_angularVelocity, int result);
-std::vector<float> goto_home(int result) {
+std::vector<float> goto_home(int result, int init) {
+	if (init == 1)
+	{
+		
+	}
 	KinovaDevice list[MAX_KINOVA_DEVICE];
 
 	int devicesCount = MyGetDevices(list, result);
