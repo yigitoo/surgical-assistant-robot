@@ -90,23 +90,14 @@ void angular_control(std::vector<float> fv_angularVelocity, int result);
 std::vector<float> goto_home(int result, int init) {
 	if (init == 1)
 	{
-		
-	}
-	KinovaDevice list[MAX_KINOVA_DEVICE];
-
-	int devicesCount = MyGetDevices(list, result);
-
-	for (int i = 0; i < devicesCount; i++)
-	{
-		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
-
-		//Setting the current device as the active device.
-		MySetActiveDevice(list[i]);
-		std::cout << "Send the robot to HOME position" << std::endl;
-		std::vector<float> degrees{0,179.2,115.7,0,128.56,0};
+		std::vector<float> degrees{0,210,210,0,120,0};
 		angular_control(degrees, result);
 		return degrees;
 	}
+	//Setting the current device as the active device.
+	std::vector<float> degrees{0,179.2,115.7,0,128.56,0};
+	angular_control(degrees, result);
+	return degrees;
 }
 
 int admittance_control(int result)
@@ -130,46 +121,25 @@ int admittance_control(int result)
 	return 1;
 }
 
-void angular_control(std::vector<float> fv_angularVelocity, int result)
+void angular_control(std::vector<float> fv_angles, int result)
 {
 	AngularPosition currentCommand;
-	KinovaDevice list[MAX_KINOVA_DEVICE];
+	TrajectoryPoint pointToSend;
+	pointToSend.InitStruct();
 
-	int devicesCount = MyGetDevices(list, result);
+	//We specify that this point will be used an angular(joint by joint) velocity vector.
+	pointToSend.Position.Type = ANGULAR_POSITION;
 
-	for (int i = 0; i < devicesCount; i++)
-	{
-		std::cout << "Found a robot on the USB bus (" << list[i].SerialNumber << ")" << std::endl;
-
-		//Setting the current device as the active device.
-		MySetActiveDevice(list[i]);
-
-		std::cout << "Initializing the motors." << std::endl;
-		MyInitFingers();
-
-		TrajectoryPoint pointToSend;
-		pointToSend.InitStruct();
-
-		//We specify that this point will be used an angular(joint by joint) velocity vector.
-		pointToSend.Position.Type = ANGULAR_POSITION;
-
-		pointToSend.Position.Actuators.Actuator1 = fv_angularVelocity[0];
-		pointToSend.Position.Actuators.Actuator2 = fv_angularVelocity[1];
-		pointToSend.Position.Actuators.Actuator3 = fv_angularVelocity[2];
-		pointToSend.Position.Actuators.Actuator4 = fv_angularVelocity[3];
-		pointToSend.Position.Actuators.Actuator5 = fv_angularVelocity[4];
-		pointToSend.Position.Actuators.Actuator6 = fv_angularVelocity[5];
-		pointToSend.Position.Actuators.Actuator7 = 0;
-		
-
-		pointToSend.Position.Fingers.Finger1 = 0;
-		pointToSend.Position.Fingers.Finger2 = 0;
-		pointToSend.Position.Fingers.Finger3 = 0;
-
-		//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
-		MySendBasicTrajectory(pointToSend);
+	pointToSend.Position.Actuators.Actuator1 = fv_angles[0];
+	pointToSend.Position.Actuators.Actuator2 = fv_angles[1];
+	pointToSend.Position.Actuators.Actuator3 = fv_angles[2];
+	pointToSend.Position.Actuators.Actuator4 = fv_angles[3];
+	pointToSend.Position.Actuators.Actuator5 = fv_angles[4];
+	pointToSend.Position.Actuators.Actuator6 = fv_angles[5];
 	
-	}
+	//We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
+	MySendBasicTrajectory(pointToSend);
+
 }
 
 void cartesian_control(std::vector<float> fv_cartesianVelocity, int result)
@@ -565,7 +535,15 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	current_degrees = goto_home(result);
+	KinovaDevice list[MAX_KINOVA_DEVICE];
+	int devicesCount = MyGetDevices(list, result);
+
+	for (int i = 0; i < devicesCount; i++)
+	{
+		//Setting the current device as the active device.
+		MySetActiveDevice(list[i]);
+	}
+	current_degrees = goto_home(result, 1);
 	if (argc > 1) angular_control(arguments, result);
 
     int programResult = communication_bridge(result, current_degrees);
@@ -638,7 +616,7 @@ int communication_bridge(int result, std::vector<float> current_degrees) {
     zmq::socket_t socket(context, ZMQ_REP);
 
     // Bind the socket to a TCP address (we use localhost and port 5555)
-    socket.bind("tcp://*:5555"); // tcp://*:5555/ would be accepted
+    socket.bind("tcp://*:456"); // tcp://*:5555/ would be accepted
                                          // as well
 
     
@@ -719,8 +697,13 @@ int communication_bridge(int result, std::vector<float> current_degrees) {
 
 		} else if (request_payload[0] == "goto_home")
 		{
-			goto_home(result);
+			goto_home(result, 0);
 			replyMessage = "The robot has been successfully positioned on the initial home.";
+		} else if (request_payload[0] == "goto_home2") 
+		{
+			goto_home(result, 1);
+			replyMessage = "The robot has been successfully positioned on the initial home.";
+
 		} else if (request_payload[0] == "get_current")
         {
 			std::vector<float> currents = get_actuator_currents(result);

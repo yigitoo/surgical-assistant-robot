@@ -56,7 +56,7 @@ func SendCommand(ctx *gin.Context) {
 	defer requester.Close()
 
 	// Connect to the ZeroMQ server
-	if err = requester.Connect("tcp://localhost:5555"); err != nil {
+	if err = requester.Connect("tcp://localhost:456"); err != nil {
 		DirectLogError(err)
 	}
 

@@ -21,6 +21,8 @@ from flask import (
     jsonify,
     redirect,
 )
+import pickle
+import time
 import json, requests, functools, tkinter
 import numpy as np
 import matplotlib.pyplot as plt
@@ -359,17 +361,24 @@ class animator():
                 160+vals1[1]+vals2[1]+vals3[1]),
         '''
 
-import pickle
-import time
+
 def use_matrix():
     with open('Robot_values','rb') as f :
         dataset = pickle.load(f)
         time.sleep(2)
-    for i in range(len(dataset[0])):
-        r = requests.post('http://localhost:5632/', json={"cmd_name": "set_angle","cmd_val": f"0,{dataset[0][i]},{dataset[1][i]},0,{dataset[2][i]},0"})
-        time.sleep(4)
-        print(i)
-    print(dataset)
+        dataset = np.array(dataset).T
+    counter = 0
+    for (d1, d2, d3) in dataset:
+        if counter % 2 == 0:
+            prev = time.time() 
+            r = requests.post('http://localhost:5632/', json={"cmd_name": "set_angle","cmd_val": f"0,{d1},{d2},0,{d3},0"})
+            current = time.time()
+            latency = current - prev
+            print(latency)
+        if counter > 50:
+            break
+        counter += 1
+    
 if __name__ == "__main__":    
     import threading 
     import sys
