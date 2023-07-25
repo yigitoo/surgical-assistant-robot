@@ -99,10 +99,10 @@ class DynamixelServo(object):
                 self.advanced_control(value, value, value, True)
 
             
-        elif self.get_arg(1) == '-set-angles':
+        elif self.get_arg(1) == '-set-angles' and len(self.get_args()) == 6:
             self.set_angles(self.get_args()[2:])
         
-        elif self.get_arg(1) == '-inc-angles':
+        elif self.get_arg(1) == '-inc-angles' and len(self.get_args()) == 6:
             self.inc_angles(self.get_args()[2:])
 
         elif len(self.get_args()) == 5:
@@ -154,14 +154,12 @@ class DynamixelServo(object):
             self.m3_angle = m_angles[2]
             self.m4_angle = m_angles[3]
 
-            self.dxl_io.set_goal_position(
-                {    
-                    1: self.m1_angle,
-                    2: self.m2_angle,
-                    3: self.m3_angle,
-                    4: self.m4_angle
-                }
-            )
+            self.dxl_io.set_goal_position({1: self.m1_angle,2: self.m2_angle,3: self.m3_angle,4: self.m4_angle})
+            time.sleep(0.8)
+            self.dxl_io.set_goal_position({1: self.m1_angle,2: self.m2_angle,3: self.m3_angle,4: self.m4_angle})
+            time.sleep(0.8)
+            self.dxl_io.set_goal_position({1: self.m1_angle,2: self.m2_angle,3: self.m3_angle,4: self.m4_angle})
+                
         else:
             raise ValueError("The number of angles must be 4")
 
@@ -224,4 +222,7 @@ class DynamixelServo(object):
         return str(self.guide())
     
 if __name__ == '__main__':
+    import time
     servos = DynamixelServo()
+    time.sleep(3)
+    print(servos.read_angles())
