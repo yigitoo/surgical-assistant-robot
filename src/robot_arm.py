@@ -21,7 +21,6 @@ from flask import (
     jsonify,
     redirect,
 )
-import pickle
 import time
 import json, requests, functools, tkinter
 import numpy as np

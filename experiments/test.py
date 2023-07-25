@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
 import time
-from main import animator
+from robot_arm import animator
 plt.ion()
 
 # def main(a1,a2,a3,t1,t2,t3):
