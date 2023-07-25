@@ -61,3 +61,14 @@ const fetch_req = (pathname, current_motor) => {
     .catch(err => false);
     return response
 }
+
+function listenKeys(event)
+{
+  let key = event.key;
+  if(key == "a" || key == "A")
+  {
+    
+  }
+}
+const bodyElement = document.querySelector('body');
+bodyElement.onkeydown = listenKeys;
