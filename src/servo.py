@@ -25,6 +25,8 @@ class DynamixelServo(object):
 
 
         self.motor_ids = motor_ids
+        
+        self.dxl_io.set_joint_mode(ids=motor_ids)
         self.cli_arguments()
 
     def change_port(self, port: str) -> bool:
@@ -90,25 +92,32 @@ class DynamixelServo(object):
         elif self.get_arg(-1) == "-gotohome":
             self.goto_home_pos()
 
-        elif len(self.get_args()) == 5:
-            self.dynamixel_control(float(self.get_arg(1)), float(self.get_arg(2)), float(self.get_arg(3)), bool(self.get_arg(4))),
-
-        elif len(self.get_args()) == 4:
-            self.dynamixel_control(float(self.get_arg(1)), float(self.get_arg(2)), float(self.selfget_arg(3)), False)
-
         #TODO: IMPLEMENT HERE LATER.
         elif len(self.get_args()) == 3:
-            if self.get_arg(-2) in ['-roll', '-pitch', '-yaw', '-claw'] and self.is_convertable(self.get_arg(-1)) == True:
+            if self.get_arg(1) in ['-roll', '-pitch', '-yaw', '-claw'] and self.is_convertable(self.get_arg(-1)) == True:
                 value = float(self.get_arg(-1))
                 self.advanced_control(value, value, value, True)
 
-        elif len(sys.argv) >= 3:
+            
+        elif self.get_arg(1) == '-set-angles':
+            self.set_angles(self.get_args()[2:])
+        
+        elif self.get_arg(1) == '-inc-angles':
+            self.inc_angles(self.get_args()[2:])
+
+        elif len(self.get_args()) == 5:
+            self.advanced_control(float(self.get_arg(1)), float(self.get_arg(2)), float(self.get_arg(3)), bool(self.get_arg(4))),
+
+        elif len(self.get_args()) == 4:
             if self.get_arg(1) == '-set-angle':
                 self.set_angle(int(self.get_arg(2)), float(self.get_arg(3)))
-            
-            if self.get_arg(1) == '-set-angles':
-                self.set_angles(self.get_args()[2:])
-
+                return
+            if self.get_arg(1) == '-inc-angle':
+                self.inc_angle(int(self.get_arg(2)), float(self.get_arg(3)))
+                return
+                        
+            self.advanced_control(float(self.get_arg(1)), float(self.get_arg(2)), float(self.selfget_arg(3)), False)
+        
         else:
             print("Usage: python3 dynamixel_control.py -gotohome / -help")
 
@@ -126,7 +135,13 @@ class DynamixelServo(object):
 
     def set_angles(self, m_angles: List[float]):
         if len(m_angles) == 2 and self.is_convertable(m_angles[0], int):
-            payload = { m_id: m_angle for (m_id, m_angle) in zip(self.motor_ids, self.m_angles) }
+            payload = {    
+                1: self.m1_angle,
+                2: self.m2_angle,
+                3: self.m3_angle,
+                4: self.m4_angle
+            }
+            
             payload[int(m_angles[0])] = float(m_angles[1])
 
             self.dxl_io.set_goal_position(
@@ -140,22 +155,48 @@ class DynamixelServo(object):
             self.m4_angle = m_angles[3]
 
             self.dxl_io.set_goal_position(
-                { m_id: m_angle for (m_id, m_angle) in zip(self.motor_ids, self.m_angles) }
+                {    
+                    1: self.m1_angle,
+                    2: self.m2_angle,
+                    3: self.m3_angle,
+                    4: self.m4_angle
+                }
             )
         else:
             raise ValueError("The number of angles must be 4")
 
     def inc_angle(self, motor_id, angle):
-        self.set_angles([motor_id, angle])
+        self.inc_angles([motor_id, angle])
 
     def inc_angles(self, m_angles: List[float]):
         if len(m_angles) == 2 and self.is_convertable(m_angles[0], int):
-            payload = { m_id: m_angle for (m_id, m_angle) in zip(self.motor_ids, self.m_angles) }
-            payload[int(m_angles[0])] += float(m_angles[1])
+            payload = { 
+                1: self.m1_angle,
+                2: self.m2_angle,
+                3: self.m3_angle,
+                4: self.m4_angle
+            }
+            # m_angles = [mot_id, inc_angle]
+            tours = m_angles[1] // 30
+            remained = m_angles[1] % 30
 
-            self.dxl_io.set_goal_position(
-                payload
-            )
+            if tours < 0:                    
+                payload[int(m_angles[0])] += float(m_angles[1])
+                self.dxl_io.set_goal_position(
+                    payload
+                )
+            else:
+                for tour in range(int(tours)):
+                    payload[int(m_angles[0])] += 30
+                    self.dxl_io.set_goal_position(
+                        payload
+                    )
+                    print(tour)
+                payload[int(m_angles[0])] += remained
+                self.dxl_io.set_goal_position(
+                    payload
+                )
+                print("+1")
         elif len(m_angles) == 4:
             self.m_angles += m_angles
             self.m1_angle += m_angles[0]
@@ -164,7 +205,12 @@ class DynamixelServo(object):
             self.m4_angle += m_angles[3]
 
             self.dxl_io.set_goal_position(
-                { m_id: m_angle for (m_id, m_angle) in zip(self.motor_ids, self.m_angles) }
+                { 
+                    1: self.m1_angle,
+                    2: self.m2_angle,
+                    3: self.m3_angle,
+                    4: self.m4_angle
+                }
             )
         else:
             raise ValueError("The number of angles must be 4")
@@ -179,4 +225,3 @@ class DynamixelServo(object):
     
 if __name__ == '__main__':
     servos = DynamixelServo()
-    servos
