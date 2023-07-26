@@ -92,6 +92,7 @@ class DynamixelServo(object):
         elif self.get_arg(-1) == "-gotohome":
             self.goto_home_pos()
 
+
         #TODO: IMPLEMENT HERE LATER.
         elif len(self.get_args()) == 3:
             if self.get_arg(1) in ['-roll', '-pitch', '-yaw', '-claw'] and self.is_convertable(self.get_arg(-1)) == True:
@@ -99,8 +100,12 @@ class DynamixelServo(object):
                 self.advanced_control(value, value, value, True)
 
             
-        elif self.get_arg(1) == '-set-angles' and len(self.get_args()) == 6:
-            self.set_angles(self.get_args()[2:])
+        elif self.get_arg(1) == '-set-angles' and len(self.get_args()) >= 6:
+            if not self.get_arg(-1) == '-r':
+                self.set_angles(self.get_args()[2:])
+            else:
+                self.set_angles(self.get_args()[2:-1])
+                print(self.read_angles())
         
         elif self.get_arg(1) == '-inc-angles' and len(self.get_args()) == 6:
             self.inc_angles(self.get_args()[2:])

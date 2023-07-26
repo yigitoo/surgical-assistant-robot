@@ -367,7 +367,8 @@ def use_matrix():
     import csv
     import pandas as pd
 
-    df = pd.read_csv('square_d_300.csv')
+    df = pd.read_csv('kosag.csv')
+    
     d1 = df['EKSEN1']
     d2 = df['EKSEN2']
     d3 = df['EKSEN3']
