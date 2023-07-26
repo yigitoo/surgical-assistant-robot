@@ -1,0 +1,46 @@
+clear;
+clc;
+
+syms q1 q2 q3 q4 q5 real;
+syms l1z l2z l3z l4z l5z l6z;
+% Z axis is to the up.
+l1z = 90 * 1e-3;
+l2z = 250.8* 1e-3;
+l3z = 165.01* 1e-3;
+l4z = 140* 1e-3;
+l5z = 140* 1e-3;
+l6z = (135.8 + 335 + 180)* 1e-3;
+
+T1 = [RotateYaw(-q1), [0; 0; l1z]; 0, 0, 0, 1];
+T2 = [RotatePitch(-q2), [0; 0; l2z]; 0, 0, 0, 1];
+T3 = [RotatePitch(q3), [0; 0; l3z]; 0, 0, 0, 1];
+T4 = [RotateYaw(-q4), [0; 0; l4z]; 0, 0, 0, 1];
+T5 = [RotatePitch(q5), [0; 0; l5z]; 0, 0, 0, 1];
+T6 = [eye(3), [0; 0; l6z]; 0, 0, 0, 1];
+
+TE = T1 * T2 * T3 * T4 * T5 * T6;
+TE = simplify(TE);
+
+xe = TE(1, 4);
+ye = TE(2, 4);
+ze = TE(3, 4);
+
+% Here we construct a Jacobian matrix.
+% J = [diff(xe, q1), diff(xe, q2)....;
+%       diff(ye, q1), diff(ye, q2)....;
+%       diff(ze, q1), diff(ze, q2)....;
+%       diff(wrx, q1), diff(wrx, q2) ...;
+%       diff(wry, q2), ...]
+% --- > size of J is 5,5
+
+Re = TE(1:3, 1:3);
+Sym_Re = Re - Re';
+
+J = [diff(xe, q1), diff(xe, q2), diff(xe, q3), diff(xe, q4), diff(xe, q5);
+     diff(ye, q1), diff(ye, q2), diff(ye, q3), diff(ye, q4), diff(ye, q5);
+     diff(ze, q1), diff(ze, q2), diff(ze, q3), diff(ze, q4), diff(ze, q5)];
+
+%print(all(Sym_Re == Sym_Re'));
+
+matlabFunction(J, 'File', "Jacobian.m")
+matlabFunction(TE, 'File', "ForwardKinematics.m")
