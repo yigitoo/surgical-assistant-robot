@@ -11,16 +11,23 @@ all: clean build run
 
 build:
 	$(CC) -o $(BIN_FOLDER)/$(BIN_NAME) src/$(FILE_NAME).cc $(ARGS) 
+
 clean:
 	rm -rf $(BIN_FOLDER)/$(BIN_NAME)
+
 run: 
 	$(BIN_FOLDER)/$(BIN_NAME)
 
 python:
-	cd src
-	python3 $(fn).py
+	cd src/robot_controller
+	python3 $(fn).py -m
+
+command:
+	cd src/robot_controller
+	python3 $(fn).py -w
+
 go:
 	cd server
-	go run cmd/main.go
+	go run .
 
 .PHONY: all build run clean go

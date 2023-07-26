@@ -31,7 +31,7 @@ import webview
 
 initial_pos = (100,160)
 
-app = Flask(__name__, static_folder='../public', template_folder='../templates')
+app = Flask(__name__, static_folder='../../public', template_folder='../../templates')
 jdata = json.loads(open('param.json','r').read())
 with open('param.json','w+') as f:
     json.dump(jdata, f, indent=4)
