@@ -27,7 +27,6 @@ command:
 	python3 $(fn).py -w
 
 go:
-	cd server
-	go run .
+	go run ./server
 
 .PHONY: all build run clean go
