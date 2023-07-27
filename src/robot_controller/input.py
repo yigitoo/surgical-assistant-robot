@@ -80,7 +80,6 @@ plt.rcParams['keymap.save'] = ["ctrl+s"]
 fig, ax = plt.subplots()
 fig.canvas.mpl_connect('key_press_event', press)
 #plt.show()
-#setangles(1.61, 87.24, 150.0, -1.03)
 print(d.set_angles(angles["close"]))
 time.sleep(2)
 print(d.set_angles(angles["open"]))

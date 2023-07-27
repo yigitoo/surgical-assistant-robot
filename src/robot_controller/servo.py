@@ -13,10 +13,10 @@ class DynamixelServo(object):
         self.PORT = self.PORT_NUMS[0]
         self.dxl_io = pypot.dynamixel.Dxl320IO(self.PORT, baudrate=1000000)
 
-        self.m1_home = 100
-        self.m2_home = 34
+        self.m1_home = -13
+        self.m2_home = 35
         self.m3_home = 10
-        self.m4_home = 3
+        self.m4_home = -149.5
 
         self.m1_angle = self.m1_home
         self.m2_angle = self.m2_home
@@ -139,7 +139,10 @@ class DynamixelServo(object):
 
     def set_angle(self, motor_id, angle):
         self.set_angles([motor_id, angle])
-
+    def open(self):
+        self.set_angles(angles["open"])
+    def close(self):
+        self.set_angles(angles["close"])
     def set_angles(self, m_angles: List[float]):
         if len(m_angles) == 2 and self.is_convertable(m_angles[0], int):
             payload = {    
@@ -231,8 +234,9 @@ class DynamixelServo(object):
 if __name__ == '__main__':
     servos = DynamixelServo()
     servos.goto_home_pos()
-    time.sleep(3)
-    servos.set_angles(angles["open"])
+    print(servos.read_angles())
+    #time.sleep(3)
+    #servos.set_angles(angles["open"])
     # data = json.loads(open('servo_angles.json','r').read())
     # for _ in range(5):
     #     servos.set_angles(data["open"])

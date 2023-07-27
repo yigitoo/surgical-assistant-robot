@@ -367,7 +367,7 @@ def use_matrix():
     import csv
     import pandas as pd
 
-    df = pd.read_csv('kosag.csv')
+    df = pd.read_csv(f'{sys.argv[-1]}.csv')
     
     d1 = df['EKSEN1']
     d2 = df['EKSEN2']
