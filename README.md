@@ -106,8 +106,9 @@ experiments
 <br>
 
 # Informations about project.
-
-LICENSE: MIT License <br>
 Maintainer: Asst. Prof. Özkan Bebek <br>
 Maintainer's Asst's: Ahmet Burhan Kara, Süleyman Can Çevik.
 Authors: Yiğit GÜMÜŞ, Salih Burak AYDOĞDU, Ozan GÖRGÜ, Bengisu PAPAKÇI
+
+# LICENSE
+The program licensed under "MIT License". (via LICENSE.md)
