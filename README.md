@@ -107,7 +107,7 @@ experiments
 
 # Informations about project.
 Maintainer: Asst. Prof. Özkan Bebek <br>
-Maintainer's Asst's: Ahmet Burhan Kara, Süleyman Can Çevik.
+Maintainer's Asst's: Ahmet Burhan Kara, Süleyman Can Çevik.<br>
 Authors: Yiğit GÜMÜŞ, Salih Burak AYDOĞDU, Ozan GÖRGÜ, Bengisu PAPAKÇI
 
 # LICENSE
